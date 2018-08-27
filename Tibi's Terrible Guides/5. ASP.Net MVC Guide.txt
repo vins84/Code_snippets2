@@ -1,0 +1,114 @@
+// ---------------------------------------------------------------------------------------------
+// ------------------------------------- ASP.Net MVC Guide -------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// For better visibility, use Notepad++ and go to Language -> C -> C#.
+
+// Open a new Visual Studio instance. The MVC project will be placed in a different solution (the WCF project needs to run separately while running the MVC).
+// Create a project as an ASP.NET Web Application. I named my solution 'eGamesWeb' to differentiate it from my 'eGamesMVC' project to avoid confusion.
+// You will be prompted, select the MVC template, click OK.
+// A basic website was generated for you.
+// Add Service Reference (not Add Reference), it will ask for an address.
+// Go to your  WCF Test Client and copy the localhost URL from your service into the address and click on 'Go'. Here is my example:
+
+	http://localhost:49677/AccountService.svc
+
+// It will find AccountService from the service project and the methods inside it.
+// Change the 'Namespace:' to something more relevant like AccountService in my case.
+// Click on Advanced, untick 'Reuse types in referenced assemblies', change collection type from Array to Generic.List (Optional). Click OK.
+// Click OK. A new folder was created: Service References. Make sure to update each reference inside the folder every time you make a change to the services in the service project.
+
+// To begin implementing functionality, go to Controllers/AccountController.
+// You will see lots of generated methods. You can use them later (like login or register) but for now, comment them. I will implement GetAllAccounts only in this guide.
+// The service using is required in this controller in order to enable 'AccountServiceClient':
+
+using eGamesMVC.AccountService;
+
+// AccountController example (make sure to get rid of [Authorize]):
+
+using System.Web.Mvc;
+using eGamesMVC.AccountService;
+using System.Collections.Generic;
+
+namespace eGamesMVC.Controllers
+{
+    public class AccountController : Controller
+    {
+        AccountServiceClient accountService = new AccountServiceClient();
+
+        public ActionResult GetAllAccounts()
+        {
+            List<Account> accountList = accountService.GetAllAccounts();
+            return View(accountList);
+        }
+	}
+}
+
+// Right click on GetAllAccounts() and Add View, name it the same as the method.
+// For 'Template' select List (use other options for AddAccount, RemoveAccount, etc.).
+// Model Class -> select the model containing the relevant table (POCO) and service. In my case: Account (eGamesMVC.AccountService).
+// Click Add. GetAllAccounts.cshtml will be added to Views/Account. Sidenote: Content has the CSS stuff. Add your own CSS there if needed.
+// The 1st line of GetAllAccounts.cshtml will show the model class (required work with data from the database). To change the header name of the page, edit the 'ViewBag.Title =' value. 
+// The html code has already been generated for you. Everything can be edited as you please.
+// This is an example of GetAllAccounts.cshtml:
+
+@model IEnumerable<eGamesMVC.AccountService.Account>
+
+@{
+    ViewBag.Title = "Accounts";
+}
+
+<h2>All Registered Accounts</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Email")
+        </th>
+        <th>
+            @Html.DisplayName("Is Admin?")
+        </th>
+        <th>
+            @Html.DisplayName("Password")
+        </th>
+        <th>
+            @Html.DisplayName("Username")
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) 
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.IsAdmin)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Password)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Username)
+        </td>
+    </tr>
+}
+</table>
+
+// The first half of the table contains the table column headers, the second half displays the data.
+// Go to Views/Shared/_Layout.cshtml and find any of the generated '@Html.ActionLink' lines and change them to link to your desired view.
+// Here is an example:
+
+<li>@Html.ActionLink("Accounts", "GetAllAccounts", "Account")</li>
+
+// The first argument is the displayed string, the second argument is the view/method name, the third argument is the controller name.
+// Run in a Browser from any of your controllers (Account in my case). It should open the starting page and the 'Accounts' button should be visible on the navbar, click and congrats!
+
+// You now have a website with implemented functionality.
+
+// ---------------------------------------------------------------------------------------------
+// -------------------------------------- Additional Info --------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// Congratulations! You are now less incompetent!

@@ -1,0 +1,127 @@
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------- Repository Layer Guide -----------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// For better visibility, use Notepad++ and go to Language -> C -> C#.
+
+// Create a new Class Library project under the same solution. This project will serve as the repository layer of the website.
+// Add a reference to the POCO project (in eGamesPOCOs\bin\Debug\eGamesPOCOs.dll in my case).
+// The repository layer requires Entity Framework in order to build and manipulate the database. Go to Package Manager Console, select the Repository project as the Default Project
+//  and type this:
+
+Install-Package EntityFramework
+
+// Go to Server Explorer and Add New Connection, select the machine name as server and type a database name.
+// Add a new ADO.Net Entity Data Model. This class will store the database, hence I named it eGamesData (name of solution + Data). This is known as the context class.
+// When prompted choose ‘Code First From Database’. Select the empty database created earlier. Click next, don’t include any database objects in your model and click finish. 
+
+// ----- Context Class ----- //
+
+// The context class acts as the link between the database and our C# code. It should contain DbSet objects which model which tables will appear in our database. The tables are the POCOs.
+// The context class uses the DbSet keyword to host the tables and the data inside, hence the following using is required:
+
+using System.Data.Entity;
+
+// Below is an example of a typical context class:
+
+namespace eGamesRepo
+{
+    using eGamesPOCOs;
+    using System.Data.Entity;
+
+    public partial class eGamesData : DbContext
+    {
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Basket> Baskets { get; set; }
+        public DbSet<Product> Products { get; set; }
+
+        public eGamesData()
+            : base("name=eGamesData")
+        {            
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+    }
+}
+
+// The convention is to pluralise the names of the POCOs when typing the property names.
+// The database is still empty, to populate it with tables you must use migrations.
+
+// ----- Migrations ----- //
+
+// The term for generating a database from C# code is ‘Migration’. This requires Entity Framework installed.
+// When moving to a new PC, you will sometimes need to uninstall and reinstall the Entity Framework package for migrations to work, then quit and run Visual Studio again.
+
+// Go to App.config, and look for the 'connectionStrings' section. You will see one line of code between the tags. I've rearranged it a little for better visibility.
+// Here is an example:
+
+  <connectionStrings>
+    <add name="eGamesData" connectionString="data source=TRNLDS12446;
+         initial catalog=eGamesDB;
+         integrated security=True;
+         MultipleActiveResultSets=True;
+         App=EntityFramework" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+
+// 'add name' indicates the context class, 'data source' indicates the machine name and 'initial catalog' indicates the databse name.
+// If this section is missing, you did something wrong.
+// Now copy this section and go to App.config in the POCOs project and paste it there right before the last closing tag 'configuration'.
+// REMEMBER! migrations will not work if you forgot to run 'Start SQL Server 2014' earlier. If you did forget, run it now before moving forward.
+
+// Now go back to the Package Manager Console and type this:
+
+enable-migrations
+
+// Now that we have enabled migrations, Entity Framework is all set up to start migrating our C# code. The configuration.cs file has been created in the Migration folder
+//  in the Repo project.
+// In the package manager console type the following command:
+
+add-migration initial
+
+// The ‘initial’ string passed with this command is the name that you want to give your migration.
+// Migrations are cumulative; they build upon the last migration. Use this command again when you add a new feature/version to the migration but use a different name; make it descriptive
+// Finally, we can run the following command to push these changes to the database:
+
+update-database
+
+// If you add or change the context class or the POCOs and want those changes to be represented in your database, all you need to do is run the two commands above.
+// (but remember to give it a new name) and then run the update-database Command to push the changes through.
+// If you don't want to create a new migration everytime you make a change then go to Migrations/Configuration.cs and modify the following line to true
+
+AutomaticMigrationsEnabled = false;
+
+// With automatic migrations enabled, you only need to use update-database from now on and then click the refresh button in the server explorer to see the changes to the database
+//  on the screen (the changes are already there without the refresh).
+// With the automatic migration enabled, you may need to force it otherwise it won't run when there is danger of data loss:
+
+update-database -force
+
+// The database is now set up and is ready for use. You can view the tables at Server Repository -> Data Connections -> [ServerName.DatabaseName.dbo] -> Tables.
+// This guide does not contain any repository classes. Go to the next guide to see tests and repository classes.
+
+// ---------------------------------------------------------------------------------------------
+// -------------------------------------- Additional Info --------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ----- Example of Configuration.cs ----- //
+
+namespace eGamesRepo.Migrations
+{
+    using System.Data.Entity.Migrations;
+
+    internal sealed class Configuration : DbMigrationsConfiguration<eGamesRepo.eGamesData>
+    {
+        public Configuration()
+        {
+            AutomaticMigrationsEnabled = true;
+        }
+
+        protected override void Seed(eGamesRepo.eGamesData context)
+        {
+        }
+    }
+}
+
+// This a configuration file in the Migrations folder with automatic migrations enabled.

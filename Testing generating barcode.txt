@@ -1,0 +1,183 @@
+//==========================        Testing Barcode         ==========================
+
+//public static Image CreateBarcodeTest()
+//{
+//    BarcodeLib.Barcode barcode = new BarcodeLib.Barcode()
+//    {
+//        IncludeLabel = true,
+//        Alignment = AlignmentPositions.CENTER,
+//        Width = 300,
+//        Height = 100,
+//        RotateFlipType = RotateFlipType.RotateNoneFlipNone,
+//        BackColor = System.Drawing.Color.White,
+//        ForeColor = System.Drawing.Color.Black,
+//    };
+
+//    System.Drawing.Image img = barcode.Encode(TYPE.CODE128B, "123456789");
+//    string filename = "BarcodeTestNew";
+//    string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+//    string filepath = string.Format(path + filename);
+
+//    img.Save(filepath);
+
+//    Process.Start(filepath);
+
+//    return img;
+//}
+
+
+//public PdfDocument CreateBarcode()
+//{
+//    PdfDocument document = new PdfDocument();
+//    PdfPage page = document.AddPage();
+//    page.Width = XUnit.FromMillimeter(50);
+//    page.Height = XUnit.FromMillimeter(30);
+//    //page.TrimMargins.All = XUnit.FromMillimeter(50) ;
+//    //page.TrimMargins.Top = XUnit.FromMillimeter(75);
+//    //page.TrimMargins.Right = 5;
+//    //page.TrimMargins.Bottom = 5;
+//    //page.TrimMargins.Left = 15;
+
+//    Code3of9Standard BarCode39 = new Code3of9Standard("128");
+//    BarCode39.TextLocation = new TextLocation();
+//    BarCode39.Text = "THIS IS MY BLOODY STRING";                    //value of code to draw on page(aLL CAPS)
+//    BarCode39.StartChar = Convert.ToChar("*");
+//    BarCode39.EndChar = Convert.ToChar("*");
+//    BarCode39.Direction = CodeDirection.LeftToRight;
+//    XFont fontBARCODE = new XFont("Arial", 8, XFontStyle.Regular);
+
+//    ////==============    Point(width, height)
+//    var barcodeWidth = XUnit.FromMillimeter(40);
+//    var barcodeHeight = XUnit.FromMillimeter(10);
+
+//    XPoint barcodePoint = new XPoint(barcodeWidth, barcodeHeight);
+//    XSize BARCODE_SIZE = new XSize(barcodePoint.X, barcodePoint.Y);
+//    BarCode39.Size = BARCODE_SIZE;
+
+
+//    XGraphics gfx = XGraphics.FromPdfPage(page);
+//    var position_X = XUnit.FromMillimeter(5);
+//    var position_Y = XUnit.FromMillimeter(18);
+//    XPoint position = new XPoint(position_X, position_Y);
+//    gfx.DrawBarCode(BarCode39, XBrushes.Black, fontBARCODE, position);
+
+//    string filename = "BarcodeTestNew.pdf";
+//    string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+//    string filepath = string.Format(path + filename);
+//    document.Save(filepath);
+//    Process.Start(filepath);
+
+//    return document;
+//}
+
+
+//public static PdfDocument CreateBarcode()
+//{
+//    PdfDocument document = new PdfDocument();
+//    PdfPage page = document.AddPage();
+//    page.Width = XUnit.FromMillimeter(50);
+//    page.Height = XUnit.FromMillimeter(30);
+//    //page.TrimMargins.All = XUnit.FromMillimeter(50) ;
+//    //page.TrimMargins.Top = XUnit.FromMillimeter(75);
+//    //page.TrimMargins.Right = 5;
+//    //page.TrimMargins.Bottom = 5;
+//    //page.TrimMargins.Left = 15;
+
+//    Code3of9Standard BarCode39 = new Code3of9Standard("128");
+//    BarCode39.TextLocation = new TextLocation();
+//    BarCode39.Text = "THIS IS MY BLOODY STRING";                    //value of code to draw on page(aLL CAPS)
+//    BarCode39.StartChar = Convert.ToChar("*");
+//    BarCode39.EndChar = Convert.ToChar("*");
+//    BarCode39.Direction = CodeDirection.LeftToRight;
+//    XFont fontBARCODE = new XFont("Arial", 8, XFontStyle.Regular);
+
+//    ////==============    Point(width, height)
+//    var barcodeWidth = XUnit.FromMillimeter(40);
+//    var barcodeHeight = XUnit.FromMillimeter(10);
+
+//    XPoint barcodePoint = new XPoint(barcodeWidth, barcodeHeight);
+//    XSize BARCODE_SIZE = new XSize(barcodePoint.X, barcodePoint.Y);
+//    BarCode39.Size = BARCODE_SIZE;
+
+	
+//    XGraphics gfx = XGraphics.FromPdfPage(page);
+//    var position_X = XUnit.FromMillimeter(5);
+//    var position_Y = XUnit.FromMillimeter(18);
+//    XPoint position = new XPoint(position_X, position_Y);
+//    gfx.DrawBarCode(BarCode39, XBrushes.Black, fontBARCODE, position);
+
+//    string filename = "BarcodeTestNew.pdf";
+//    string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+//    string filepath = string.Format(path + filename);
+//    document.Save(filepath);
+//    Process.Start(filepath);
+
+//    return document;
+	//Paragraph paratopleft = section.AddParagraph();
+	//paratopleft.AddFormattedText("Company name", TextFormat.Bold);
+
+	//pdfRenderer.PrepareRenderPages();
+	//pdfRenderer.DocumentRenderer.RenderObject(gfx, XUnit.FromPoint(40), XUnit.FromPoint(20), XUnit.FromPoint(200) );
+
+	//MemoryStream stream = new MemoryStream();
+
+	//pdfRenderer.PdfDocument.Save(stream);
+	//document2.Save(stream); 
+
+
+	//pdfRenderer.PdfDocument.AddPage();
+	//pdfRenderer.RenderDocument();
+
+	//using (XGraphics gfx2 = XGraphics.FromPdfPage(page))
+	//{
+	//    gfx2.MUH = pdfRenderer.Unicode ? PdfFontEncoding.Unicode : PdfFontEncoding.WinAnsi;
+	//    pdfRenderer.DocumentRenderer.RenderPage(gfx, 1);
+	//}
+	//------
+
+
+	//DemonstrateTable(document);
+
+	//PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false, PdfFontEmbedding.Always);
+	//pdfRenderer.Document = pdf;
+	//pdfRenderer.RenderDocument();
+
+	//string filename = "TestingBarcode.pdf";
+	//string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+	//string filepath = string.Format(path + filename);
+	//pdfRenderer.PdfDocument.Save(filepath);
+	//Process.Start(filepath);
+	//pdfRenderer.PdfDocument.Save(filepath);
+
+	//DisplayPDF(pdf);
+//}
+
+
+
+//public static void DemonstrateTable(Document document )
+//{
+//    Table table = new Table();
+//    table.Borders.Width = 0.15;
+
+//    Column column = table.AddColumn(Unit.FromMillimeter(45));
+//    //column.Format.Alignment = ParagraphAlignment.Center;
+
+//    Row row = table.AddRow();
+//    row.Height = (Unit.FromMillimeter(8));
+//    //row.Shading.Color = Colors.PaleGoldenrod;
+//    Cell cell = row.Cells[0];
+//    cell.AddParagraph("Item No: ABC001122");
+//    row.Format.Alignment = ParagraphAlignment.Center;
+//    row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+
+//    row = table.AddRow();
+//    row.Height = (Unit.FromMillimeter(10));
+//    cell = row.Cells[0];
+//    cell.AddParagraph("||||||||||||||||||||||||||||");
+//    row.Format.Alignment = ParagraphAlignment.Center;
+//    row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+
+//    table.SetEdge(0, 0, 1, 2, Edge.Box, BorderStyle.Single, 1.5, Colors.Black);
+
+//    document.LastSection.Add(table);
+//}

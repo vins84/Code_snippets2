@@ -1,0 +1,246 @@
+using Microsoft.VisualBasic.FileIO;
+using System;
+using System.IO;
+using System.Text;
+
+namespace CsvConverter
+{
+    public class ConvertCSV
+    {
+
+        public void WriteConvertedCsv(string filePath)
+        {
+            TextFieldParser csvParser = new TextFieldParser(filePath);
+
+            csvParser.SetDelimiters(new string[] { "," });
+            csvParser.HasFieldsEnclosedInQuotes = true;
+
+            var newCsv = new StringBuilder();
+
+            while (!csvParser.EndOfData)
+            {
+                string[] fields = csvParser.ReadFields();
+
+                //if (fields[0] == "First" && fields[1] == "Last Name")
+                //{
+                //    Console.WriteLine("Mistrzu");
+                //}
+
+                string FirstName = fields[0].ToString();
+                string LastName = fields[1];
+                string Age = fields[2];
+
+                var newLine = string.Format("{0},{1},{2}", FirstName, LastName, Age);
+                newCsv.AppendLine(newLine);
+                Console.WriteLine(" Writing {0} {1} {2}", FirstName, LastName, Age);
+
+                //after your loop
+                File.WriteAllText(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test444_csv.csv", newCsv.ToString());
+            }
+        }
+    }
+}
+
+//------------   ReadCSV  ----------------------
+namespace CsvConverter
+{
+    public class ReadCSV
+    {
+        public void ReadCsvFile(string filePath)
+        {
+            //var path = @"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv";
+            TextFieldParser csvParser = new TextFieldParser(filePath);
+
+            //csvParser.CommentTokens = new string[] { "#" };
+            csvParser.SetDelimiters(new string[] { "," });
+            csvParser.HasFieldsEnclosedInQuotes = true;
+
+            // Skip the row with the column names
+            //csvParser.ReadLine();
+
+            while (!csvParser.EndOfData)
+            {
+                // Read current line fields, pointer moves to the next line.
+                string[] fields = csvParser.ReadFields();
+
+                string FirstName = fields[0];
+                string LastName = fields[1];
+                string Age = fields[2];
+                Console.WriteLine(" Reading {0} {1} {2}", FirstName, LastName, Age);
+
+            }
+        }
+    }
+}
+
+
+//---------------  Console  ------------------
+using System;
+
+namespace CsvConverter
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            String filePath = @"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv";
+
+            var readFile = new ReadCSV();
+            readFile.ReadCsvFile(filePath);
+
+            var writeFile = new ConvertCSV();
+            writeFile.WriteConvertedCsv(filePath);
+
+
+            //---------------------------------------------------------------
+            //var path = @"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv";
+            //using (TextFieldParser csvParser = new TextFieldParser(path))
+            //{
+            //    //csvParser.CommentTokens = new string[] { "#" };
+            //    csvParser.SetDelimiters(new string[] { "," });
+            //    csvParser.HasFieldsEnclosedInQuotes = true;
+
+            //    // Skip the row with the column names
+            //    //csvParser.ReadLine();
+
+            //    //before your loop
+            //    var newCsv = new StringBuilder();
+
+            //    while (!csvParser.EndOfData)
+            //    {
+            //        // Read current line fields, pointer moves to the next line.
+            //        string[] fields = csvParser.ReadFields();
+
+            //        string FirstName = fields[0];
+            //        string LastName = fields[1];
+            //        string Age = fields[2];
+            //        Console.WriteLine("{0} {1} {2}", FirstName, LastName, Age);
+
+                    
+                    
+
+            //        //in your loop
+            //        var first = fields[0].ToString();
+            //        var second = fields[1].ToString();
+            //        var third = fields[2].ToString();
+
+            //        //Suggestion made by KyleMit
+            //        var newLine = string.Format("{0},{1},{2}", first, second,third);
+            //        newCsv.AppendLine(newLine);
+
+            //        //after your loop
+            //        File.WriteAllText(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test444_csv.csv", newCsv.ToString());
+            //    }
+
+                
+            //}
+
+            
+
+
+
+            //---------------------------------------------------------------
+            //var column1 = new List<string>();
+            //var column2 = new List<string>();
+
+            //using (var rd = new StreamReader(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv"))
+            //{
+            //    while (!rd.EndOfStream)
+            //    {
+            //        var splits = rd.ReadLine().Split(',');
+            //        column1.Add(splits[0]);
+            //        column2.Add(splits[1]);
+            //    }
+            //}
+            //// print column1
+            //Console.WriteLine("Column 1:");
+            //foreach (var element in column1)
+            //    Console.WriteLine(element);
+
+            //// print column2
+            //Console.WriteLine("Column 2:");
+            //foreach (var element in column2)
+            //    Console.WriteLine(element);
+
+
+            //---------------------------------------------------------------
+            //var lines = File.ReadAllLines(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv");
+            //var csv = from line in lines
+            //          select (line.Split(',')).ToArray();
+
+            //foreach (var item in csv)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+
+            //---------------------------------------------------------------
+            //using (TextFieldParser parser = new TextFieldParser(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv"))
+            //{
+            //    parser.TextFieldType = FieldType.Delimited;
+            //    parser.SetDelimiters(",");
+            //    while (!parser.EndOfData)
+            //    {
+            //        //Processing row
+            //        string[] fields = parser.ReadFields();
+            //        foreach (string field in fields)
+            //        {
+            //            Console.WriteLine(field);
+            //        }
+
+            //    }
+            //}
+
+            //---------------------------------------------------------------
+            //string FileName = @"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv";
+            //StreamReader sr = new StreamReader(FileName);
+            //while (!sr.EndOfStream)
+            //{
+            //    Console.WriteLine(sr.ReadLine());
+            //}
+
+
+            //---------------------------------------------------------------
+            //string FileName = @"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv";
+            //Console.WriteLine(File.ReadAllText(FileName));
+
+
+            //---------------------------------------------------------------
+            //string st = File.ReadAllText(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv");   //This only reads the last line
+            //Console.WriteLine(st);
+
+            ////-------------------------------------------------------------
+            //StreamReader sr = new StreamReader(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test2_csv.csv");
+            //string data = sr.ReadLine();
+            //while (data != null)
+            //{
+
+            //    string[] values = data.Split(',');
+            //    Console.WriteLine(data);
+            //    data = sr.ReadLine();
+            //}
+
+            //---------------------------------------------------------------
+            //StreamReader sr = new StreamReader(@"C:\Users\Miroslaw\Desktop\Adare Project\CSV_Converter\Test_csv.csv");
+            //string line = "";
+
+            //while (line != null)
+            //{
+            //    line = sr.ReadLine();
+            //    //line.Split(',');
+
+            //    if (line != null)
+            //    {
+
+            //        Console.WriteLine(line);
+            //    }
+            //    //Console.WriteLine(line);
+            //}
+
+            //((line = sr.ReadLine()) != null)
+            //---------------------------------------------------------------
+
+
+        }
+    }
+}

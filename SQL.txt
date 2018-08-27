@@ -1,0 +1,36 @@
+	******    Data Types    *******
+
+Data types specify the type of data for a particular column.
+
+If a column called "LastName" is going to hold names, then that particular column should have a "varchar" (variable-length character) data type.
+
+The most common data types:
+Numeric
+INT -A normal-sized integer that can be signed or unsigned.
+FLOAT(M,D) - A floating-point number that cannot be unsigned. You can optionally define the display length (M) and the number of decimals (D).
+DOUBLE(M,D) - A double precision floating-point number that cannot be unsigned. You can optionally define the display length (M) and the number of decimals (D). 
+
+Date and Time
+DATE - A date in YYYY-MM-DD format.
+DATETIME - A date and time combination in YYYY-MM-DD HH:MM:SS format.
+TIMESTAMP - A timestamp, calculated from midnight, January 1, 1970
+TIME - Stores the time in HH:MM:SS format.
+
+String Type
+CHAR(M) - Fixed-length character string. Size is specified in parenthesis. Max 255 bytes.
+VARCHAR(M) - Variable-length character string. Max size is specified in parenthesis.
+BLOB - "Binary Large Objects" and are used to store large amounts of binary data, such as images or other types of files. 
+TEXT - Large amount of text data.
+
+
+
+     ******      SQL Constraints     **********
+ 
+SQL constraints are used to specify rules for table data.
+
+The following are commonly used SQL constraints:
+NOT NULL - Indicates that a column cannot contain any NULL value.
+UNIQUE - Does not allow to insert a duplicate value in a column. The UNIQUE constraint maintains the uniqueness of a column in a table. More than one UNIQUE column can be used in a table.
+PRIMARY KEY - Enforces the table to accept unique data for a specific column and this constraint create a unique index for accessing the table faster.
+CHECK - Determines whether the value is valid or not from a logical expression.
+DEFAULT - While inserting data into a table, if no value is supplied to a column, then the column gets the value set as DEFAULT.

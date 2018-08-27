@@ -1,0 +1,68 @@
+Starting the Correct Instance of SQL Server
+
+By default, sqlservr.exe is located at C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\Binn. 
+If a second instance of SQL Server is installed, a second copy of sqlservr.exe is located in a directory such as C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\binn. You can start one instance of SQL Server by using sqlservr.exe from a different instance, but SQL Server will start the version of the incorrect instance as well, including service packs, which may lead to unexpected results. To avoid this, use the MS-DOS change directory (cd) command to move to the correct directory before starting sqlservr.exe, as shown in the following example.cd \Program Files\Microsoft SQL Server\MSSQL10_50.1\MSSQL\Binn
+To start the default instance of SQL Server from a command prompt
+
+From a command prompt, enter the following command:
+
+	sqlservr.exe
+
+To start a named instance of SQL Server from a command prompt
+From a command prompt, enter the following command and replace <instancename> with the name of the instance you want to start:
+
+	sqlservr.exe -s <instancename>
+
+To start the default instance of SQL Server in single-user mode from a command prompt
+From a command prompt, enter the following command:
+
+	sqlservr.exe -m
+
+Single-user mode can be useful for performing emergency maintenance when you do not want other users to connect to SQL Server, but any user can become the single user, including the SQL Server Agent service.
+To start a named instance of SQL Server in single-user mode from a command prompt
+From a command prompt, enter the following command:
+
+	sqlservr.exe -m -s <instancename>
+
+To start the default instance of SQL Server with minimal configuration
+From a command prompt, enter the following command:
+
+	sqlservr.exe -f
+
+To start a named instance of SQL Server with minimal configuration
+From a command prompt, enter the following command:
+
+	sqlservr.exe -f -s <instancename>
+	
+	
+	
+	
+//======================    STARTING DATABASE    =============================
+Search "sqlLocalDb" from start menu,
+Click on the run command,
+Go back to VS 2015 tools/connect to database,
+select MSSQL server,
+enter (localdb)\MSSQLLocalDB as server name
+Select your database and ready to go.
+
+
+//=================   This way worked through oralce start database cmd - UPDATE* just run it in CMD works 100%   ==========
+Open command prompt
+Run SqlLocalDB.exe start v11.0
+Run SqlLocalDB.exe info v11.0
+
+or you can also create an instance SqlLocalDB.exe create "instanceName"		-	https://docs.microsoft.com/en-us/sql/relational-databases/express-localdb-instance-apis/command-line-management-tool-sqllocaldb-exe
+										-	https://docs.microsoft.com/en-us/sql/tools/sqllocaldb-utility
+Then in VS use server name as : 
+ServerName = (LocalDb)\MSSQLLocalDB
+ServerName = (LocalDb)\v11.0
+ServerName = (LocalDb)\instanceName
+
+or copy the pipe name and use it as a server name
+
+Copy the Instance pipe name that starts with np:\...
+		--------------   np:\\.\pipe\LOCALDB#520E2A4B\tsql\query
+	  			 np:\\.\pipe\LOCALDB#0C003A7A\tsql\query
+	 			 np:\\.\pipe\LOCALDB#A1557D9E\tsql\query
+							
+							  

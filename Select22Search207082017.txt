@@ -1,0 +1,92 @@
+\\Pmadfas02.adare.local\GMC_Prodfiles\GMCPAT\LaSer\SmartView\LegacyData\CardB2B Output\CW
+
+//===================================================================
+
+
+        public JsonResult GetCustomers(string searchTerm, int pageSize, int pageNum, string mirek)
+        {
+            ApplicationDbContext _db = new ApplicationDbContext();
+            List<Customer> customers = GetCustomers(searchTerm, pageSize, pageNum);
+            int customersCount = GetCustomersCount(searchTerm, pageSize, pageNum);
+            //Translate the attendees into a format the select2 dropdown expects
+            Select2PagedResult pagedCustomers = AttendeesToSelect2Format(customers, customersCount);
+
+            return new JsonResult()
+            {
+                Data = pagedCustomers,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+            #region OldCopy
+            //try
+            //{
+            //    var customer = _db.Customers.Select(c => new
+            //    {
+            //        id = c.CustomerId,
+            //        text = c.Name
+            //    });
+            //    return Json(customer, JsonRequestBehavior.AllowGet);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return Json("", JsonRequestBehavior.AllowGet);
+            //}
+            #endregion
+        }
+
+        private Select2PagedResult AttendeesToSelect2Format(List<Customer> customers, int totalCustomers)
+        {
+            Select2PagedResult jsonCustomers = new Select2PagedResult();
+            jsonCustomers.Results = new List<Select2Result>();
+
+            //Loop through our attendees and translate it into a text value and an id for the select list
+            foreach (Customer a in customers)
+            {
+                jsonCustomers.Results.Add(new Select2Result { id = a.CustomerId.ToString(), text = a.Name });
+            }
+            //Set the total count of the results from the query.
+            jsonCustomers.Total = totalCustomers;
+
+            return jsonCustomers;
+        }
+
+
+        public IQueryable<Customer> Customers { get; set; }
+        public List<Customer> GetCustomers(string searchTerm, int pageSize, int pageNum)
+        {
+            return GetCustomersQuery(searchTerm)
+                .Skip(pageSize * (pageNum - 1))
+                .Take(pageSize)
+                .ToList();
+        }
+        //And the total count of records
+        public int GetCustomersCount(string searchTerm, int pageSize, int pageNum)
+        {
+            return GetCustomersQuery(searchTerm)
+                .Count();
+        }
+
+        //Our search term
+        private IQueryable<Customer> GetCustomersQuery(string searchTerm)
+        {
+            searchTerm = searchTerm.ToLower();
+
+            return Customers
+                .Where(
+                    a =>
+                    a.Name.Like(searchTerm)
+                );
+        }
+
+        //Extra classes to format the results the way the select2 dropdown wants them
+        public class Select2PagedResult
+        {
+            public int Total { get; set; }
+            public List<Select2Result> Results { get; set; }
+        }
+
+        public class Select2Result
+        {
+            public string id { get; set; }
+            public string text { get; set; }
+        }
+        //=========================================================================

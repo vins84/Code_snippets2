@@ -1,0 +1,122 @@
+// ---------------------------------------------------------------------------------------------
+// ------------------------------------- WCF Service Guide -------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// For better visibility, use Notepad++ and go to Language -> C -> C#.
+
+// ----- Building a Service ----- // 
+
+// Start a new project as a Class Library under the same solution (i.e. eGamesService).
+// Add references to the Repo and POCOs projects and to System.ServiceModel.
+// Make an interface for each Repo class from the repo project. In the example below, we only have the GetAllAccounts() method for simplicity:
+
+using eGamesPOCOs;
+using System.Collections.Generic;
+using System.ServiceModel;
+
+namespace eGamesService
+{
+    [ServiceContract]
+    public interface IAccountService
+    {
+        [OperationContract]
+        List<Account> GetAllAccounts();
+    }
+}
+
+// The Service Model using allows for 'ServiceContract' and 'OperationContract' to be recongnised by the program.
+// A service contract holds a list of methods that can be exposed to outside applications. They are methods that can be called from other applications.
+// It is good practise to use an interface for service contracts. You can define a service contract by adding the ServiceContract attribute to the interface.
+// Each method in a service contract that you want to expose needs to be marked as an Operation Contract.
+// The access modifier has no effect on the visibility of the interface once it is hosted as a service app.
+
+// Add a corresponding class to implement the interface:
+
+using eGamesPOCOs;
+using eGamesRepo;
+using System.Collections.Generic;
+
+namespace eGamesService
+{
+    public class AccountService : IAccountService
+    {
+        AccountRepo accountRepo = new AccountRepo();
+
+        public List<Account> GetAllAccounts()
+        {
+            return accountRepo.GetAllAccounts();
+        }
+    }
+}
+
+// The POCOs use 'DataContract' and there is a reason for this.
+// A data contract defines data that can be transmitted inside of Service Contracts. Data Contracts help when WCF is serialising the data into a raw form, ready to be passed along the wire.
+
+// ----- Hosting a Service ----- // 
+
+// Now we need to host the service.
+// Create a new Project as a WCF Service Application under the same solution.
+// Add References to System.ServiceModel, System.Runtime.Serialization and the Service Project created earlier.
+// Delete IService1.cs and Service1.svc/Service1.svc.cs
+// Go to Service1.svc and delete ' CodeBehind="Service1.svc.cs" ' from the line there
+// One the same line edit the 'Serive =' part to reference the Service project and the Account service created earlier.
+// Here is my example:
+
+<%@ ServiceHost Language="C#" Debug="true" Service="eGamesService.AccountService" %>
+
+// Rename Service1.svc to the name of the specific service referenced in the line above. In my case, it will be renamed to AccountService.svc.
+// This is done because the project will have multiple services (for instance, a ProductService), so I will need another svc file to reference it.
+
+// Go to App.config from the repo project, copy the code between the <configuration> tags, then go back to the WCF project -> Web.config and paste it right before the <appSettings> line. 
+// Here is an example of the pasted code for my case:
+
+  <configSections>
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+  </configSections>
+  <entityFramework>
+    <defaultConnectionFactory type="System.Data.Entity.Infrastructure.LocalDbConnectionFactory, EntityFramework">
+      <parameters>
+        <parameter value="mssqllocaldb" />
+      </parameters>
+    </defaultConnectionFactory>
+    <providers>
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+    </providers>
+  </entityFramework>
+  <connectionStrings>
+    <add name="eGamesData" connectionString="data source=TRNLDS12446;
+         initial catalog=eGamesDB;
+         integrated security=True;
+         MultipleActiveResultSets=True;
+         App=EntityFramework" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+
+// Notice the 'EntityFramework.SqlServer' part, that is the dll it needs from the repo project, so go to the Debug folder and copy the dll file along with its xml counterpart to
+//  the bin folder of the WCF project
+// When things go wrong, you want your error messages to be as descriptive as possible, so for the <serviceBehaviors> tag and find this line:
+
+<serviceDebug includeExceptionDetailInFaults="false"/>
+
+// Change the value to 'true'.
+// Right-click on the Solution and 'Set StartUp Projects', then select the WCF project as the 'Single startup project'.
+// Now go to the Project Dependecies tab, select the WCF project in the 'Projects:' and tick the Service project.
+// The host is now ready, to run it, go to the svc file renamed earlier and compile.
+// You might get an error if you put your classes into folders, so go to their namespace and remove '.[Folder_Name]'.
+// The WCF Test Client is now running. Double click on the methods and invoke. You can now see what the methods do. In my case, there is only 1 method.
+// When you have multiple services, you can run any of their svc files, all services will work, but you might not see the others appear in the client.
+// Go to File -> Add Service in the WCF Test Client and add the other services you made. You can now see all of them.
+
+// ---------------------------------------------------------------------------------------------
+// -------------------------------------- Additional Info --------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// WCF writes services that expose endpoints to the world
+// Service implementantion defines business logic
+// Endpoints define the communitcation options (http, tcp, basic)
+// Endpoints have 3 components:
+//		Address = Where to send messages
+//		Binding = How to send messages
+//		Contract = What messages must contain
+// Services can expose multiple endpoints for consumers
+// WCF allows applications to communicate with each other.

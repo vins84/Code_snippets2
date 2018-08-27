@@ -1,0 +1,930 @@
+//================     CodeAcademy
+I’d start with the codeacademy courses:
+https://www.codecademy.com/learn/react-101 
+https://www.codecademy.com/learn/react-102 
+
+
+
+const myDiv = (
+<div className="big">
+	I AM A BIG DIV
+</div>
+);
+
+ReactDOM.render(myDiv, document.getElementById('app'));
+
+
+//this displays 2+3
+ReactDOM.render(<h1>2+3</h1>, document.getElementById('app'));
+
+//this display 5
+ReactDOM.render(<h1>{2+3}</h1>, document.getElementById('app'));
+
+
+
+const theBestString = 'tralalalala i am da best';
+ReactDOM.render(<h1>{theBestString}</h1>, document.getElementById('app'));
+
+
+
+
+//==========		Events			===================
+https://reactjs.org/docs/events.html#supported-events
+
+
+<img onClick={myFunc} />
+
+function myFunc() {
+  alert('Make myFunc the pFunc... omg that was horrible i am so sorry');
+}
+
+example:
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+
+const kitty = (
+	<img onClick={makeDoggy}
+		src="https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-kitty.jpg" 
+		alt="kitty" />
+);
+
+function makeDoggy(e) {
+  // Call this extremely useful function on an <img>.
+  // The <img> will become a picture of a doggy.
+  e.target.setAttribute('src', 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-puppy.jpeg');
+  e.target.setAttribute('alt', 'doggy');
+}
+
+ReactDOM.render(kitty, document.getElementById('app'));
+
+
+//==============		JSX Conditionals: If Statements That Don't Work		====================
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+function coinToss() {
+  // This function will randomly return either 'heads' or 'tails'.
+  return Math.random() < 0.5 ? 'heads' : 'tails';
+}
+
+const pics = {
+  kitty: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-kitty.jpg',
+  doggy: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-puppy.jpeg'
+};
+let img;
+
+// if/else statement begins here:
+if (coinToss() === 'heads'){
+    img = <img src={pics.kitty} />
+  }
+  else {
+    img = <img src={pics.doggy} />
+  }
+
+ReactDOM.render(img, document.getElementById('app'));
+
+
+//--------		JSX Conditionals: The Ternary Operator		--------------
+The ternary operator works the same way in React as it does in regular JavaScript. However, it shows up in React surprisingly often.
+Recall how it works: you write x ? y : z, where x, y, and z are all JavaScript expressions. 
+When your code is executed, x is evaluated as either "truthy" or "falsy." 
+If x is truthy, then the entire ternary operator returns y. If x is falsy, then the entire ternary operator returns z.  
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+function coinToss () {
+  // Randomly return either 'heads' or 'tails'.
+  return Math.random() < 0.5 ? 'heads' : 'tails';
+}
+
+const pics = {
+  kitty: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-kitty.jpg',
+  doggy: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-puppy.jpeg'
+};
+
+const img = <img src={pics[coinToss() === 'heads' ? 'kitty' : 'doggy']} />;
+
+ReactDOM.render(
+	img, 
+	document.getElementById('app')
+);
+
+
+Example:
+const judgmental = Math.random() < 0.5;
+
+const favoriteFoods = (
+  <div>
+    <h1>My Favorite Foods</h1> 
+    <ul>
+      <li>Sushi Burrito</li>
+      <li>Rhubarb Pie</li>
+      { !judgmental && <li>Nacho Cheez Straight Out The Jar</li> }
+      <li>Broiled Grapefruit</li>
+    </ul>
+  </div>
+);
+
+ReactDOM.render(
+	favoriteFoods, 
+	document.getElementById('app')
+);
+
+
+
+//----------------		.map in JSX		---------
+
+In the above example, we start out with an array of strings. We call .map() on this array of strings, and the .map() call returns a new array of <li>s.
+
+// This is fine in JSX, not in an explicit array:
+
+<ul>
+  <li>item 1</li>
+  <li>item 2</li>
+  <li>item 3</li>
+</ul>
+
+// This is also fine!
+
+const liArray = [
+  <li>item 1</li>, 
+  <li>item 2<li>, 
+  <li>item 3</li>
+];
+
+<ul>{liArray}</ul>
+
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const people = ['Rowe', 'Prevost', 'Gare'];
+
+const peopleLis = people.map(person =>
+  // expression goes here:
+<li>{person}</li>
+);
+
+// ReactDOM.render goes here:
+ReactDOM.render(<ul>{peopleLis}</ul>, document.getElementById('app'))
+
+
+//------------------		Keys		------------------
+A key is a JSX attribute. The attribute's name is key. The attribute's value should be something unique, similar to an id attribute.
+
+<ul>
+  <li key="li-01">Example1</li>
+  <li key="li-02">Example2</li>
+  <li key="li-03">Example3</li>
+</ul>
+
+keys don't do anything that you can see! React uses them internally to keep track of lists. 
+If you don't use keys when you're supposed to, React might accidentally scramble your list-items into the wrong order.
+
+
+Not all lists need to have keys. A list needs keys if either of the following are true:
+
+The list-items have memory from one render to the next. 
+For instance, when a to-do list renders, each item must "remember" whether it was checked off. 
+The items shouldn't get amnesia when they render.
+
+A list's order might be shuffled. For instance, a list of search results might be shuffled from one render to the next.
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const people = ['Rowe', 'Prevost', 'Gare'];
+
+const peopleLis = people.map((person,i) =>
+  // expression goes here:
+<li key= {'person_' + i }>{person}</li>
+);
+
+// ReactDOM.render goes here:
+ReactDOM.render(<ul>{peopleLis}</ul>, document.getElementById('app'))
+
+
+
+//----------------		React.createElement			------------------
+
+Creating element using JSX:
+const greatestDivEver = <div>i am div</div>;
+
+Creating element using without using JSX:
+const greatestDivEver = React.createElement('div', null, 'i am div');
+
+
+// -=-=-=	PART 2 =-=-=- 	Hello World, Part II... THE COMPONENT
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class MyComponentClass extends React.Component {
+  render() {
+    return <h1>Hello world</h1>;
+  }
+};
+
+ReactDOM.render(
+  <MyComponentClass />,
+  document.getElementById('app')
+);
+
+
+//-------------			Component Classes			--------------------
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
+https://hacks.mozilla.org/2015/07/es6-in-depth-classes/
+https://hacks.mozilla.org/2015/08/es6-in-depth-subclassing/
+http://exploringjs.com/es6/ch_classes.html
+
+
+class MyComponentClass extends React.Component {
+  render() {
+    return <h1>Hello world</h1>;
+  }
+}
+
+ReactDOM.render(
+	<MyComponentClass />, 
+	document.getElementById('app')
+);
+
+
+On line 1, import React from 'react' creates a JavaScript object. 
+This object contains properties that are needed to make React work, such as React.createElement() and React.Component.
+
+On line 2, import ReactDOM from 'react-dom' creates another JavaScript object. 
+This object contains methods that help React interact with the DOM, such as ReactDOM.render().
+
+On line 4, by subclassing React.Component, you create a new component class. 
+This is not a component! A component class is more like a factory that produces components. 
+When you start making components, each one will come from a component class.
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class QuoteMaker extends React.Component {
+  render() {
+	  return (
+	  <blockquote>
+	  <p>
+		What is important now is to recover our senses.
+	  </p>
+	  <cite>
+		<a target="_blank" 
+		  href="https://en.wikipedia.org/wiki/Susan_Sontag">
+		  Susan Sontag
+		</a>
+	  </cite>
+	</blockquote>
+		);
+	}
+};
+
+
+another Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+	
+const owl = {
+  title: 'Excellent Owl',
+  src: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-owl.jpg'
+};
+
+// Component class starts here:
+class Owl extends React.Component {
+  render() {
+    return (
+      <div>
+  			<h1>
+          {owl.title}
+        </h1>
+        <img 
+          src={owl.src}
+          alt={owl.title} />
+    	</div>
+      );
+  }
+};
+
+ReactDOM.render(<Owl/>, document.getElementById('app'))
+
+
+
+//==============		Put Logic in a Render Function			========================
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const friends = [
+  {
+    title: "Yummmmmmm",
+    src: "https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-monkeyweirdo.jpg"
+  },
+  {
+    title: "Hey Guys!  Wait Up!",
+    src: "https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-earnestfrog.jpg"
+  },
+  {
+    title: "Yikes",
+    src: "https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-alpaca.jpg"
+  }
+];
+
+// New component class starts here:
+class Friend extends React.Component{
+  render() {
+    const friend = friends[1];
+    
+    return ( 
+    	<div>
+        <h1>
+          {friend.title}
+        </h1>
+        <img 
+          src={friend.src}
+          />
+      </div>
+    );
+  }
+};
+
+ReactDOM.render(<Friend/>, document.getElementById('app'));
+
+
+//===============		Use a Conditional in a Render Function			====================
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const fiftyFifty = Math.random() < 0.5;
+
+// New component class starts here:
+class TonightsPlan extends React.Component {
+  render () {
+    let task;
+    if(!fiftyFifty) {
+      task ='to bed WOOO'
+    } 
+    else {
+      task = 'out WOOO'
+    }
+    
+    return  <h1>Tonight I'm going {task}</h1>;
+  }
+};
+
+ReactDOM.render(<TonightsPlan/>, document.getElementById('app'));
+
+
+//================		Use this in a component		=================================
+https://dmitripavlutin.com/gentle-explanation-of-this-in-javascript/
+
+class IceCreamGuy extends React.Component {
+  get food() {
+    return 'ice cream';
+  }
+
+  render() {
+    return <h1>I like {this.food}.</h1>;
+  }
+}
+
+
+Example:
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class MyName extends React.Component {
+	// name property goes here:
+get name(){
+  return 'Miroslaw';
+}
+
+  render() {
+    return <h1>My name is {this.name}.</h1>;
+  }
+}
+
+ReactDOM.render(<MyName />, document.getElementById('app'));
+
+
+//---------------------			this.props		-------------------------------------
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class PropsDisplayer extends React.Component {
+  render() {
+  	const stringProps = JSON.stringify(this.props);
+
+    return (
+      <div>
+        <h1>CHECK OUT MY PROPS OBJECT</h1>
+        <h2>{stringProps}</h2>
+      </div>
+    );
+  }
+}
+
+// ReactDOM.render goes here:
+ReactDOM.render(<PropsDisplayer/>, document.getElementById('app'));
+
+
+//Pass `props` to a Component
+<Example message="This is some top secret info." />
+
+<Greeting myInfo={["top", "secret", "lol"]} />
+
+<Greeting name="Frarthur" town="Flundon" age={2} haunted={false} />
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class Greeting extends React.Component {
+  
+  render() {
+    return <h1>Hi there, {this.props.firstName}!</h1>;
+  }
+}
+
+ReactDOM.render(
+  <Greeting firstName='Miroslaw' />, 
+  document.getElementById('app')
+);
+
+
+//-------------------		Pass props From Component To Component			----------------
+Your mission is to pass a prop to a <Greeting /> component instance, from an <App /> component instance.
+
+If <App /> is going to pass a prop to <Greeting />, then it follows that <App /> is going to render <Greeting />.
+
+Since <Greeting /> is going to be rendered by another component, that means that <Greeting /> needs to use an export statement.
+
+
+Example:
+import React from 'react';
+
+export class Greeting extends React.Component {
+  render() {
+    return <h1>Hi there, {this.props.name}!</h1>;
+  }
+}
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Greeting} from './Greeting'
+
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>
+          Hullo and, "Welcome to The Newzz," "On Line!"
+        </h1>
+        <Greeting name="Miroslaw"/>
+        <article>
+          Latest newzz:  where is my phone?
+        </article>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <App />, 
+  document.getElementById('app')
+);
+
+
+
+//===================		Use Event Listener in a Component		========================
+
+class MyClass extends React.Component {
+  myFunc() {
+    alert('Stop it.  Stop hovering.');
+  }
+
+  render() {
+    return (
+      <div onHover={this.myFunc}>
+      </div>
+    );
+  }
+}
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class Button extends React.Component {
+  scream() {
+    alert('AAAAAAAAHHH!!!!!');
+  }
+
+  render() {
+    return <button onClick={this.scream}>AAAAAH!</button>;
+  }
+}
+
+ReactDOM.render(<Button/>, document.getElementById('app'));
+
+
+//===============		A Component in a Render Function (component rendering another component)		===================
+
+class OMG extends React.Component {
+  render() {
+    return <h1>Whooaa!</h1>;
+  }
+}
+
+class Crazy extends React.Component {
+  render() {
+    return <OMG />;
+  }
+}
+
+In the above example, Crazy's render method returns an instance of the OMG component class. You could say that Crazy renders an <OMG />.
+
+
+If your filepath doesn't have a file extension, then ".js" is assumed. So the above example could be shortened:
+
+import { NavBar } from './NavBar';
+
+One final, important note:
+None of this behavior is specific to React! 
+Module systems of independent, importable files are a very popular way to organize code. 
+React's specific module system comes from ES6. More on all of that later.
+
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { NavBar } from './NavBar';
+
+
+class ProfilePage extends React.Component {
+  render() {
+    return (
+      <div>
+				<NavBar />
+        <h1>All About Me!</h1>
+        <p>I like movies and blah blah blah blah blah</p>
+        <img src="https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-monkeyselfie.jpg" />
+      </div>
+    );
+  }
+}
+
+
+//================		Export & Export Components 			==========================
+http://exploringjs.com/es6/ch_modules.html		-		goes beyond named exports and has several advanced syntax features.
+
+
+export const faveManifestos = {
+  futurist: 'http://www.artype.de/Sammlung/pdf/russolo_noise.pdf',
+  SCUM:     'http://www.ccs.neu.edu/home/shivers/rants/scum.html',
+  cyborg:   'http://faculty.georgetown.edu/irvinem/theory/Haraway-CyborgManifesto-1.pdf'
+};
+
+export const alsoRan = 'TimeCube';
+In a different file, import the name of the var, let, const, function, or class from the first file:
+
+
+import { faveManifestos, alsoRan } from './Manifestos';
+
+console.log(`A Cyborg Manifesto:  ${faveManifestos.cyborg}`);
+
+This style of importing and exporting in JavaScript is known as "named exports." 
+When you use named exports, you always need to wrap your imported names in curly braces, such as:
+
+import { faveManifestos, alsoRan } from './Manifestos';`
+
+
+Example:
+Exporting full class/component:
+
+import React from 'react';
+
+export class NavBar extends React.Component {
+  render() {
+    const pages = ['home', 'blog', 'pics', 'bio', 'art', 'shop', 'about', 'contact'];
+    const navLinks = pages.map(page => {
+      return (
+        <a href={'/' + page}>
+          {page}
+        </a>
+      )
+    });
+
+    return <nav>{navLinks}</nav>;
+  }
+}
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { NavBar } from './NavBar';
+
+
+class ProfilePage extends React.Component {
+  render() {
+    return (
+      <div>
+				<NavBar />
+        <h1>All About Me!</h1>
+        <p>I like movies and blah blah blah blah blah</p>
+        <img src="https://s3.amazonaws.com/codecademy-content/courses/React/react_photo-monkeyselfie.jpg" />
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<ProfilePage/>, document.getElementById('app'));
+
+
+import React from 'react';
+
+export class NavBar extends React.Component {
+  render() {
+    const pages = ['home', 'blog', 'pics', 'bio', 'art', 'shop', 'about', 'contact'];
+    const navLinks = pages.map(page => {
+      return (
+        <a href={'/' + page}>
+          {page}
+        </a>
+      )
+    });
+
+    return <nav>{navLinks}</nav>;
+  }
+}
+
+
+
+//==============		Put an Event Handler in a Component Class		==================
+Started off here:
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button } from './Button';
+
+function talk () {
+	let speech = '';
+  for (let i = 0; i < 10000; i++) {
+    speech += 'blah ';
+  	}
+  	alert(speech);
+  }
+
+class Talker extends React.Component {
+  render() {
+    return <Button />;
+  }
+}
+
+ReactDOM.render(
+  <Talker />,
+  document.getElementById('app')
+);
+
+
+Ended up with:
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button } from './Button';
+
+class Talker extends React.Component {
+  talk () {
+	let speech = '';
+  for (let i = 0; i < 10000; i++) {
+    speech += 'blah ';
+  	}
+  	alert(speech);
+  }
+  
+  render() {
+    return <Button />;
+  }
+}
+
+ReactDOM.render(
+  <Talker />,
+  document.getElementById('app')
+);
+
+
+And finally we are passing function from Talker.js to Button.js:
+class Talker extends React.Component {
+  talk() {
+    let speech = '';
+    for (let i = 0; i < 10000; i++) {
+      speech += 'blah ';
+    }
+    alert(speech);
+  }
+  
+  render() {
+    return <Button talk={this.talk}/>;
+  }
+}
+
+ReactDOM.render(
+  <Talker />,
+  document.getElementById('app')
+);
+
+
+so now in a Button.js we attach talk to button:
+import React from 'react';
+
+export class Button extends React.Component {
+  render() {
+    return (
+      <button onClick={this.props.talk}>
+        Click me!
+      </button>
+    );
+  }
+}
+
+
+Bt name talk is not very descriptive so lets change it to handleClick:
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button } from './Button';
+
+class Talker extends React.Component {
+  handleClick() {
+    let speech = '';
+    for (let i = 0; i < 10000; i++) {
+      speech += 'blah ';
+    }
+    alert(speech);
+  }
+  
+  render() {
+    return <Button onClick={this.handleClick}/>;
+  }
+}
+
+ReactDOM.render(
+  <Talker />,
+  document.getElementById('app')
+);
+
+
+import React from 'react';
+
+export class Button extends React.Component {
+  render() {
+    return (
+      <button onClick={this.props.onClick}>
+        Click me!
+      </button>
+    );
+  }
+}
+
+
+//------------------		this.props.children			-------------------
+Every component's props object has a property named children.
+
+this.props.children will return everything in between a component's opening and closing JSX tags.
+
+
+Look at BigButton.js. In Example 1, <BigButton>'s this.props.children would equal the text, "I am a child of BigButton."
+
+In Example 2, <BigButton>'s this.props.children would equal a <LilButton /> component.
+
+In Example 3, <BigButton>'s this.props.children would equal undefined.
+
+If a component has more than one child between its JSX tags, then this.props.children will return those children in an array. 
+However, if a component has only one child, then this.props.children will return the single child, not wrapped in an array.
+
+
+Example:
+
+import React from 'react';
+import { LilButton } from './LilButton';
+
+class BigButton extends React.Component {
+  render() {
+    console.log(this.props.children);
+    return <button>Yo I am big</button>;
+  }
+}
+
+
+// Example 1
+<BigButton>
+  I am a child of BigButton.
+</BigButton>
+
+
+// Example 2
+<BigButton>
+  <LilButton />
+</BigButton>
+
+
+// Example 3
+<BigButton />
+
+
+
+Example:
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { List } from './List';
+
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <List type='Living Musician'>
+          <li>Sachiko M</li>
+          <li>Harvey Sid Fisher</li>
+        </List>
+        <List type='Living Cat Musician'>
+          <li>Nora the Piano Cat</li>
+        </List>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <App />, 
+  document.getElementById('app')
+);
+
+
+
+import React from 'react';
+
+export class List extends React.Component {
+  render() {
+    let titleText = `Favorite ${this.props.type}`;
+    if (this.props.children instanceof Array) {
+    	titleText += 's';
+    }
+    return (
+      <div>
+        <h1>{titleText}</h1>
+        <ul>{this.props.children}</ul>
+      </div>
+    );
+  }
+}
+BONUS: Each <List><List /> instance is passed a singular title: "Living Musician" and "Living Cat Musician," respectively. 
+Somehow, each <List><List /> counts its list-items and automatically adds an "s" to the end of its title if the count is greater than one. 
+We could add a second piano cat, and the second list title would automatically pluralize.
+
+
+//-------------------		defaultProps		--------------------
+Take a look at the Example component class.
+
+Notice that on line 8, Button expects to receive a prop named text. The received text will be displayed inside of a <button></button> element.
+
+What if nobody passes any text to Button?
+
+If nobody passes any text to Button, then Button's display will be blank. It would be better if Button could display a default message instead.
+
+You can make this happen by giving your component class a property named defaultProps:
+
+
+Example:
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class Button extends React.Component {
+  render() {
+    return (
+      <button>
+        {this.props.text}
+      </button>
+    );
+  }
+}
+
+// defaultProps goes here:
+Button.defaultProps = { text : 'I am a button'};
+
+ReactDOM.render(
+  <Button />, 
+  document.getElementById('app')
+);
+
+
+
+
+

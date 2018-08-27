@@ -1,0 +1,47 @@
+"System.Collections.Generic.List`1[System.String]" - trying to access collection rather than single instance of object
+
+var newPrefix = SuffixMatchlist[0].Substring(0, SuffixMatchlist[0].Length - 1);
+
+
+dbContext.Database.Log = sql => Debug.WriteLine(sql);
+
+
+SQL query - SelectMany
+	-	https://msdn.microsoft.com/en-us/library/bb534336(v=vs.110).aspx
+	-	http://www.dotnettricks.com/learn/linq/difference-between-select-and-selectmany-in-linq
+	-	http://blogs.interknowlogy.com/2008/10/10/use-linqs-selectmany-method-to-flatten-collections/
+
+
+
+jQuery
+	-	https://select2.github.io/	
+	-	http://jquerymodal.com/
+	-	http://demos.jquerymobile.com/1.4.2/popup/
+	-	https://www.w3schools.com/jquerymobile/jquerymobile_popups.asp
+	-	https://jqueryui.com/dialog/
+	-	http://fontawesome.io/examples/
+	-	http://www.telerik.com/forums/missing-down-arrow
+	
+	
+	
+
+AutoFaq
+
+Forms Authentication MVC
+https://www.codeproject.com/Articles/578374/AplusBeginner-splusTutorialplusonplusCustomplusF
+https://msdn.microsoft.com/en-us/library/ff398049(v=vs.98).aspx
+https://www.codeproject.com/Articles/601687/ASP-NET-MVC-Forms-Authentication-Customized
+
+
+ViewData from Controller to Views
+https://weblogs.asp.net/scottgu/asp-net-mvc-framework-part-3-passing-viewdata-from-controllers-to-views
+
+Rendering ASP.NET MVC Razor Views to String
+http://www.codemag.com/Article/1312081
+
+
+Decent explanation of the security measure, and an example of the kind of hacking Sam does in his spare time:
+http://www.devcurry.com/2013/01/what-is-antiforgerytoken-and-why-do-i.html
+
+
+http://docs.telerik.com/devtools/aspnet-ajax/controls/pivotgrid/functionality/scrolling

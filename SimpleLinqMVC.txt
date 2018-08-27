@@ -1,0 +1,104 @@
+public ActionResult Index(ReportViewModel model, string save)
+        {
+            using (AtomScanningContext context = new AtomScanningContext())
+            {
+                IEnumerable<ScanningReporting> query = context.BoxScans.Where(
+                        b => b.DateScanned >= model.DateFrom && b.DateScanned <= model.DateTo)
+                    .ToList()
+                    .GroupBy(b => b.BOXId)
+                    .Select(s => new ScanningReporting()
+                    {
+                        BoxId = s.Key.ToString(),
+                        
+
+                        Barcode1 = s.Count(t => t.ScannedBarcode.Length > 0) > 1 ? s.Where(t => t.ScannedBarcode.Length > 0).OrderByDescending(t => t.Id).First().ScannedBarcode : s.First().ScannedBarcode,
+                        Barcode2 = s.Count(t => t.ScannedBarcode.Length>0) > 1 ? s.Where(t=>t.ScannedBarcode.Length > 0).OrderByDescending(t=>t.Id).Skip(1).First().ScannedBarcode : "N/A",
+                        DateScanned = s.First().DateScanned.Value,
+                        WarehouseSignature = string.Empty,
+                        ScanningSignature = string.Empty
+                    });
+
+                var viewModel = new ReportViewModel() { ReportGroups = query, DateFrom = model.DateFrom, DateTo = model.DateTo };
+                if (!string.IsNullOrEmpty(save))
+                {
+                    var test4 = RenderRazorViewToString("Index", viewModel);
+                    PdfGenerateConfig config = new PdfGenerateConfig
+                    {
+                        PageOrientation = PageOrientation.Portrait,
+                        PageSize = PageSize.A4,
+                        MarginTop = 5,
+                        MarginBottom = 20,
+                        MarginLeft = 20,
+                        MarginRight = 0
+                    };
+
+                    string css = ".columnWidth{ width: 100px; text-align: centre;}";
+
+                    PdfDocument pdf = PdfGenerator.GeneratePdf(test4, config, PdfGenerator.ParseStyleSheet(css));
+                    pdf.Save("C:\\document.pdf");
+                }
+                
+                return View(viewModel);
+            }
+		
+
+public class ScanningReporting
+{
+	[Key]
+	public long Id { get; set; }
+	[Display(Name = "Box Id")]
+	public string BoxId { get; set; }
+	[Display(Name = "Barcode 1")]
+	public string Barcode1 { get; set; }
+	[Display(Name = "Barcode 2")]
+	public string Barcode2 { get; set; }
+	[Display(Name = "Date Scanned")]
+	public DateTime DateScanned { get; set; }
+
+	public string Signature { get; set; }
+}
+
+public class ReportViewModel
+{
+	public IEnumerable<ScanningReporting> ReportGroups { get; set; }
+
+	public DateTime DateFrom { get; set; }
+	public DateTime DateTo { get; set; }
+}	
+
+
+
+//=================================				LINQ			=====================================
+
+public List<IQueryable> GetData(DateTime startDate, DateTime dateTo)
+{
+	var query = _db.ExperianReturnInfoes.Join(_db.URNs, u => u.UrnID, ur => ur.ID, (u, ur) => new { u, ur })
+		.Join(_db.JobCodes, j => j.ur.JobCodeID, jc => jc.ID, (j, jc) => new { j, jc })
+		.Where(w => w.j.ur.DateAdded >= startDate && w.j.ur.DateAdded < dateTo) 
+		.Distinct()
+		.Select(w => new
+		{
+			Date = w.j.ur.DateAdded,
+			Billing = w.j.u.ExperianCode,
+			Label = w.j.u.WhiteLabel,
+			JobType = w.jc.JobCodeValue,
+			DPandPers = w.j.u.SheetCount,
+			Sheets = w.j.u.NumberOfLines,
+			Enclosing = w.j.u.SheetCount
+		})
+		.GroupBy(g => new {g.Date, g.Billing, g.Label, g.JobType})
+		.Select(s => new
+		{
+			s.Key.Date,
+			s.Key.Billing,
+			s.Key.Label,
+			s.Key.JobType,
+			DPandPers = s.Sum(sdp => sdp.DPandPers),
+			Sheets= s.Sum(su => su.Sheets),
+			Enclosing = s.Count(se => se.Sheets.HasValue)
+		}).OrderBy(o => o.Date);
+
+	return new List<IQueryable> { query };
+}
+
+

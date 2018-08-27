@@ -1,0 +1,484 @@
+//========================		Packadge manager	============================
+Update-Package -reinstall
+
+Install-Package NuGet.CommandLine
+//then you can do nuget restore
+
+
+
+//========================		MVC Project		================================
+https://www.codeproject.com/Articles/486161/Creating-a-simple-application-using-MVC						-		Simple MVC
+https://code.msdn.microsoft.com/AspNet-MVC-Code-First-6c3253d2
+https://code.msdn.microsoft.com/ASPNET-MVC-Application-b01a9fe8
+http://www.entityframeworktutorial.net/code-first/fluent-api-in-code-first.aspx							-		Fluent API Codefirst
+http://www.entityframeworktutorial.net/code-first/simple-code-first-example.aspx						-		Simple CodeFirst Example
+https://channel9.msdn.com/search?term=mvc#ch9Search&lang-en=en&pubDate=year								-		MSDN online video courses
+
+https://docs.microsoft.com/en-us/aspnet/web-pages/overview/getting-started/introducing-aspnet-web-pages-2/entering-data		-		Introducing ASP.NET Web Pages - Entering Database Data by Using Forms
+
+
+//------------------------			Navbars			--------------------------
+https://bootsnipp.com/snippets/g6lpo							-		Really nice navbar
+
+
+//------------------------			Colour Picker			--------------------------
+http://htmlcolorcodes.com/color-picker/
+https://www.w3schools.com/colors/colors_picker.asp
+
+
+
+//========================		CRUD		================================
+https://docs.microsoft.com/en-us/aspnet/mvc/overview/older-versions-1/nerddinner/provide-crud-create-read-update-delete-data-form-entry-support			-		Provide CRUD (Create, Read, Update, Delete) Data Form Entry Support
+	
+
+	
+//========================		ASP.NET Identity		========================	
+https://www.codeproject.com/Articles/1010804/How-to-Customize-Profile-Info-in-ASP-NET-Identity					-		How to customise profile info in ASP.NET-Identity
+http://www.itorian.com/2013/11/customize-users-profile-in-aspnet.html											-		Customize User's Profile in ASP.NET Identity System
+http://www.dotnetfunda.com/articles/show/2898/working-with-roles-in-aspnet-identity-for-mvc						-		Working with Roles in ASP.NET Identity for MVC
+
+https://www.codeproject.com/Articles/682113/Extending-Identity-Accounts-and-Implementing-Rol					-		Identity
+https://www.codeproject.com/Articles/799571/ASP-NET-MVC-Extending-ASP-NET-Identity-Roles						-		Identity
+https://blogs.msdn.microsoft.com/webdev/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates/
+https://www.codeproject.com/Articles/682113/Extending-Identity-Accounts-and-Implementing-Rol					-		Good Indentity1.0 or look for links to Identity2.0 within the pages/overview/getting-started/introducing-aspnet-web-pages-2/entering-data
+https://code.msdn.microsoft.com/ASPNET-MVC-5-Security-And-44cbdb97												-		Seems good
+
+https://docs.microsoft.com/en-us/aspnet/identity/overview/getting-started/introduction-to-aspnet-identity
+
+http://johnatten.com/2014/04/20/asp-net-mvc-and-identity-2-0-understanding-the-basics/								-		GOOD Identity 2.0	-	seems good example
+http://johnatten.com/2014/04/20/asp-net-identity-2-0-setting-up-account-validation-and-two-factor-authorization/	-		GOOD Identity 2.0 cont
+
+
+
+//========================		User Roles		================================
+http://www.dotnetfunda.com/articles/show/2898/working-with-roles-in-aspnet-identity-for-mvc					-		Good
+http://www.c-sharpcorner.com/UploadFile/asmabegam/Asp-Net-mvc-5-security-and-creating-user-role/
+http://www.dotnetcurry.com/aspnet-mvc/1102/aspnet-mvc-role-based-security									-		This one worked for me but use the first one to match the style of the box
+
+https://www.codeproject.com/Articles/799571/ASP-NET-MVC-Extending-ASP-NET-Identity-Roles					-		Extending ASP-NET-Identity-Roles and Implementation of role based Authorisation
+http://www.dotnetfunda.com/articles/show/3240/simple-role-manager-in-aspnet-mvc-5
+http://www.dotnetfunda.com/articles/show/2648/working-with-roles-in-aspnet-mvc-4
+http://www.codeproject.com/Articles/682113/Extending-Identity-Accounts-and-Implementing-Rol
+http://www.dotnetcurry.com/aspnet-mvc/1102/aspnet-mvc-role-based-security									-		Role Based Security in ASP.NET MVC 5 Web Applications
+
+
+http://geekswithblogs.net/MightyZot/archive/2014/12/28/implementing-rolemanager-in-asp.net-mvc-5.aspx		-		How to add Role Manager
+
+
+
+//========================		DropDown List		============================
+//--------------------		This is Will s dropdown 	------------------------
+http://www.tutorialsteacher.com/mvc/htmlhelper-dropdownlist-dropdownlistfor
+icons 		-		http://astronautweb.co/snippet/font-awesome/
+
+
+//------------------------------   		Simple dropdown list from the list of strings			------------------------
+@Html.DropDownListFor(model => model.ListOfStreamDates, new SelectList(Model.ListOfStreamDates), "Select Date")
+
+
+
+Thaths how you build the dropdown-menu:
+public static MvcHtmlString Dropdown(string id, List<SelectListItem> selectListItems, string label)
+{
+	var button = new TagBuilder("button")
+	{
+		Attributes =
+	{
+		{"id", id},
+		{"type", "button"},
+		{"data-toggle", "dropdown"},
+		{"aria-hidden", "true"}
+	}
+	};
+
+	button.AddCssClass("fa fa-caret-down");
+
+	button.AddCssClass("btn");
+	button.AddCssClass("btn-default");
+	button.AddCssClass("dropdown-toggle");
+
+	button.SetInnerText(label);
+
+	//button.InnerHtml += " " + BuildCaret();                   // original
+
+	var wrapper = new TagBuilder("div");
+	wrapper.AddCssClass("dropdown");
+
+	wrapper.InnerHtml += button;
+	wrapper.InnerHtml += BuildDropdown(id, selectListItems);
+
+	return new MvcHtmlString(wrapper.ToString());
+}
+
+private static string BuildCaret()
+{
+	var caret = new TagBuilder("i")
+	{
+		Attributes =
+		{
+			{"aria-hidden", "true"}
+		}
+	};
+	caret.AddCssClass("fa fa-caret-down");
+
+	return caret.ToString();
+}
+
+private static string BuildDropdown(string id, IEnumerable<SelectListItem> items)
+{
+	var list = new TagBuilder("ul")
+	{
+		Attributes =
+	{
+		{"class", "dropdown-menu"},
+		{"role", "menu"},
+		{"aria-labelledby", id},
+		{"aria-hidden", "true"}
+	}
+	};
+
+	var listItem = new TagBuilder("li");
+	listItem.Attributes.Add("role", "presentation");
+
+	items.ToList().ForEach(x => list.InnerHtml += "<li role=\"presentation\">" + BuildListRow(x) + "</li>");
+
+	return list.ToString();
+}
+
+private static string BuildListRow(SelectListItem item)
+{
+	var anchor = new TagBuilder("a")
+	{
+		Attributes =
+	{
+		{"role", "menuitem"},
+		{"tabindex", "-1"},
+			{"style","cursor:pointer"},
+		//{"href", item.Value},
+	}
+	};
+
+	anchor.SetInnerText(item.Text);
+
+	return anchor.ToString();
+}
+
+
+	
+https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application	
+https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/database-first-development/generating-views
+https://docs.microsoft.com/en-us/aspnet/tutorials
+
+
+//--------------------		these are random dropdown examples	 	----------------------
+http://www.c-sharpcorner.com/uploadfile/3d39b4/creating-a-dropdownlist-for-enums-in-asp-net-mvc/
+http://idisposable.co.uk/2013/05/creating-a-drop-down-list-from-an-enum-in-asp-net-mvc/									-		Good
+https://paulthecyclist.com/2013/05/24/enum-dropdown/
+https://www.codeproject.com/Articles/662968/Creating-a-DropDownList-for-Enums-in-ASP-NET-MVC
+https://cmatskas.com/how-to-bind-an-enum-to-a-dropdownlist-in-asp-net-mvc/
+https://www.codeproject.com/Articles/1056011/Bind-Enum-to-DropdownList-in-ASP-NET-MVC
+http://wmwood.net/2015/12/18/quick-tip-enum-to-description-in-csharp/
+https://stackoverflow.com/questions/388483/how-do-you-create-a-dropdownlist-from-an-enum-in-asp-net-mvc
+https://stackoverflow.com/questions/26555493/how-to-apply-bootstrap-dropdown-style-to-an-asp-net-mvc-dropdownlist
+
+
+//--------------------		Enums	 	----------------------
+https://www.codeproject.com/Articles/18809/Enums-in-C
+https://stackoverflow.com/questions/16055305/method-that-accepts-multiple-enum-types
+
+
+using System.ComponentModel;
+using System.Reflection;
+
+		public enum IssueTypes
+		{
+			[Description("Sub-Task")]
+			SubTask = 10000,
+			[Description("Incident")]
+			Incident = 10001,
+
+			[Description("Service Request")]
+			//[EnumMember(Value = "Service Request")]				-		Apparately this meant to work too but it didnt for me
+			ServiceRequest = 10002,
+
+			[Description("Service Request with Apporvals")]
+			ServiceRequestwithApprovals = 10003,
+		}
+
+and now method to select the description:
+		public static string GetEnumDescription(Enum value)
+		{
+			FieldInfo fi = value.GetType().GetField(value.ToString());
+
+			DescriptionAttribute[] attributes =
+				(DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+			if (attributes != null && attributes.Length > 0)
+				return attributes[0].Description;
+			else
+				return value.ToString();
+		}
+
+
+and that is to just play around:	(it doesnt effect above solution)
+		var issueTypeSelector = issueTypes.GetType().GetMember(issueTypes.ToString());
+		var issueTypeName = issueTypeSelector[0].Name;		
+		
+		
+//========================		DataTable		============================
+https://datatables.net/reference/api/
+https://datatables.net/										-		Nice example of dataTable
+https://www.datatables.net/examples/api/row_details.html
+https://jsfiddle.net/karlnicholas/2gc3r7vv/					-		Good example expandable datatable
+
+<div style="height: 400px; overflow: auto;"> </div>			-		Creates scrollable table 
+
+
+
+//=========================				Tree View				=============================
+//---------------------------		Tree View		-----------------------------
+https://github.com/jonmiles/bootstrap-treeview
+https://codepen.io/kaslab/pen/rewvEo
+http://gijgo.com/tree/demos/bootstrap-4-treeview
+https://jonmiles.github.io/bootstrap-treeview/									-		Good example - no code
+https://angular-ui-tree.github.io/angular-ui-tree/#/expand-on-hover				-		Very good angular examples
+https://codepen.io/blascone/pen/EVBYdb											-		
+http://jsfiddle.net/umutc1/eyf9q87c/											-		Nice example (Grand Grand Grand children)
+http://gijgo.com/LiveEdit/Index/bootstrap-treeview.html?component=tree#			-		Nice and simple(This reads from the database and populates)
+http://gijgo.com/tree/demos/bootstrap-4-treeview								-		the same example but with a code
+https://wix.github.io/angular-tree-control/#as-attribute
+https://bootsnipp.com/snippets/l1v06
+
+//---------------------------		TreeView Examples not tested		-----------------------
+https://www.mindstick.com/Articles/1119/using-treeview-in-asp-dot-net-mvc
+http://demos.telerik.com/aspnet-mvc/treeview/templates
+https://help.syncfusion.com/aspnetmvc/treeview/populate-data
+https://help.syncfusion.com/aspnetmvc/treeview/getting-started
+http://www.c-sharpcorner.com/UploadFile/3d39b4/bootstrap-tree-view-in-Asp-Net-mvc/
+https://weblogs.asp.net/raduenuca/asp-net-mvc-displaying-a-tree-view-using-a-recursive-declarative-helper-and-jquery
+https://www.sencha.com/forum/showthread.php?194228-Load-treeview-dynamically-from-C
+http://demos.telerik.com/aspnet-mvc/treeview/api
+
+//=========================				ScrollBar				=============================
+//this defines the box that tree view was in
+.treewell {
+    overflow: overlay;
+    height: 410px;
+    width: 235px;
+}
+
+
+.treewell::-webkit-scrollbar {
+    width: 12px;
+}
+
+.treewell::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.treewell::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+
+
+//=========================				HTML Renderer				=============================
+https://github.com/DenisPitcher/HTML-Renderer/blob/master/Documentation/PDFGeneration.md
+
+
+//=========================				ScrollBar				=============================
+//this defines the box that tree view was in
+.treewell {
+    overflow: overlay;
+    height: 410px;
+    width: 235px;
+}
+
+
+.treewell::-webkit-scrollbar {
+    width: 12px;
+}
+
+.treewell::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.treewell::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+
+
+
+//=========================				Select2				=====================================
+http://select2.github.io/select2/
+https://github.com/NeilMeredith/Select2Demo
+https://www.intertech.com/Blog/selecting-multiple-items-using-select2-in-mvc-5/					-			GOOD how to pass value to the model
+http://code.runnable.com/UmuP-67-dQlIAAFU/events-in-select2-for-jquery							-			Events in select2 [jQuery]    -    might be really useful
+http://jsfiddle.net/AcfUz/																		-			Good example showing how to add a comma after selection
+
+
+
+
+//loading Data Array OK
+var data = [
+	{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' },
+	{ id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }
+];
+$(".js-example-data-array").select2({
+	placeholder: 'Select an option',
+	data: data
+});
+$(".js-example-data-array-selected").select2({
+	data: data
+});
+
+
+
+//======	ok so for this we needed 1class, (weirdly) two properties, and javascript	=====
+public class Customer
+{
+	public int CustomerId { get; set; }
+	public string Name { get; set; }
+	public virtual ICollection<ApplicationUser> Users { get; set; }
+}
+
+public JsonResult GetCustomers()
+{
+	ApplicationDbContext _db = new ApplicationDbContext();
+	var customers = _db.Customers.ToList();
+	//var json = from customer in customers
+	//           select new
+	//           {
+	//               name = customer.Name,
+	//               id = customer.CustomerId,
+	//           };
+
+	var test = _db.Customers.Select(c => new
+	{
+		id = c.CustomerId,
+		text = c.Name
+	});
+	return Json(test, JsonRequestBehavior.AllowGet);
+}
+
+//---------------	
+[Display(Name = "Customers")]
+public List<Customer> Customers { get; set; }
+		
+[Required]
+[Display(Name = "Customer")]
+public string Customer { get; set; }
+		
+//----------------
+<div class="form-group">
+	@Html.LabelFor(m => m.Customers, new { @class = "col-md-2 control-label" })
+	<div>
+		@Html.HiddenFor( m => m.Customer, new { id = "customer" })
+		<select class="form-control" id="ddlName" data-url='@Url.Action("GetCustomers", "Account")' multiple="multiple"></select>
+	</div>
+</div>
+//----------------
+
+
+<script type="text/javascript">
+    $('#ddlName').select2({
+        placeholder: "Search for the Name",
+        minimumInputLength: 0,              //set to 0 to display all the customers from db
+        ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+            url: "@Url.Action("GetCustomers", "Account")",
+            type: "GET",
+            dataType: 'json',
+            quietMillis: 50,
+            delay: 250,
+            data: function(params) {
+                return {
+                    term: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data
+                };
+            }
+        }
+
+    }).on("change", function (e) {
+        var selMulti = $.map($("#ddlName option:selected"), function (el, i) {
+            return $(el).text();
+        });
+        $("#customer").val(selMulti.join(", "));
+    });
+</script>
+
+
+//=========================			Compatibility for IE		=================================
+------	Just add this to your Index page and it should stop using predefinied setting set by SOP
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
+
+
+
+
+//===========================			string to bytes			=============================
+static byte[] GetBytes(string str)
+{
+     byte[] bytes = new byte[str.Length * sizeof(char)];
+     System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+     return bytes;
+}
+//===========================			bytes to string			=============================
+static string GetString(byte[] bytes)
+{
+     char[] chars = new char[bytes.Length / sizeof(char)];
+     System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+     return new string(chars);
+}
+
+//===========================			
+public static class StringEncoder
+{
+    static byte[] EncodeToBytes(string str)
+    {
+        byte[] bytes = new byte[str.Length * sizeof(char)];
+        System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+        return bytes;
+    }
+    static string DecodeToString(byte[] bytes)
+    {
+        char[] chars = new char[bytes.Length / sizeof(char)];
+        System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+        return new string(chars);
+    }
+}
+
+public static class BytesEncoder
+{
+    public static string EncodeToString(byte[] bytes)
+    {
+        bool even = (bytes.Length % 2 == 0);
+        char[] chars = new char[1 + bytes.Length / sizeof(char) + (even ? 0 : 1)];
+        chars[0] = (even ? '0' : '1');
+        System.Buffer.BlockCopy(bytes, 0, chars, 2, bytes.Length);
+
+        return new string(chars);
+    }
+    public static byte[] DecodeToBytes(string str)
+    {
+        bool even = str[0] == '0';
+        byte[] bytes = new byte[(str.Length - 1) * sizeof(char) + (even ? 0 : -1)];
+        char[] chars = str.ToCharArray();
+        System.Buffer.BlockCopy(chars, 2, bytes, 0, bytes.Length);
+
+        return bytes;
+    }
+}
+

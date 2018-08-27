@@ -1,0 +1,223 @@
+//=============		iText7 Labels/Tickets example	===================
+ public ActionResult DisplayIText(List<Pick> items, string choice)
+{
+	if (items != null)
+	{
+		var noForms = items.Where(w => w.Type == StockType.Insert || w.Type == StockType.Outer);
+		//Verify with Heather if needed
+		//var noPvos = noForms.Where(w => w.NavJobID == null);
+
+		using (MemoryStream memoryStream = new MemoryStream())
+		{
+			PdfWriter pdfWriter = new PdfWriter(memoryStream);
+			PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+			var document = CreateDocument(pdfDocument, choice);
+			PopulateTable(document, noForms, pdfDocument, choice);
+			document.Close();
+			return File(memoryStream.ToArray(), "application/pdf");
+		}
+	}
+	return null;
+}
+
+public Document CreateDocument(PdfDocument pdfDocument, string choice)
+{
+	Document document = new Document(pdfDocument);
+
+	if (choice == "label")
+	{
+		PageSize pageSize = new PageSize(new Rectangle(142, 85));
+		document.GetPdfDocument().SetDefaultPageSize(new PageSize(new Rectangle(pageSize)));
+		//Document document = new Document(pdfDocument, new PageSize(new Rectangle(212, 254)));
+		document.SetMargins(0, 0, 0, 0);
+	}
+	else
+	{
+		PageSize pageSize = new PageSize(new Rectangle(212, 254));
+		document.GetPdfDocument().SetDefaultPageSize(new PageSize(new Rectangle(pageSize)));
+		document.SetMargins(1, 1, 1, 1);
+	}
+
+	return document;
+}
+
+public Table CreateTable(string choice)
+{
+	if (choice == "label")
+	{
+		Table table = new Table(1);
+		table.SetWidth(135).SetHeight(84);
+		table.SetHorizontalAlignment(HorizontalAlignment.CENTER).SetVerticalAlignment(VerticalAlignment.MIDDLE);
+		return table;
+	}
+	else
+	{
+		Table table = new Table(2);
+		table.SetWidth(204).SetHeight(248);
+		table.SetVerticalAlignment(VerticalAlignment.MIDDLE).SetHorizontalAlignment(HorizontalAlignment.CENTER);
+		table.SetMargins(2,2,2,2);
+		return table;
+	}
+}
+
+public Image CreateBarcode128Image(PdfDocument pdfDocument, string choice, string barcodeData)
+{
+	if (choice == "label")
+	{
+		Barcode128 barcode = new Barcode128(pdfDocument);
+		barcode.SetCode(barcodeData);
+		barcode.SetFont(null);
+		barcode.FitWidth(130);
+		barcode.SetBarHeight(20);
+		var barcodeImage = new Image(barcode.CreateFormXObject(ColorConstants.BLACK, null, pdfDocument));
+		return barcodeImage;
+	}
+	else
+	{
+		Barcode128 barcode = new Barcode128(pdfDocument);
+		barcode.SetCode(barcodeData);
+		barcode.SetFont(PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.TIMES_ROMAN));
+		barcode.FitWidth(138);
+		barcode.SetBarHeight(25);
+		var barcodeImage = new Image(barcode.CreateFormXObject(ColorConstants.BLACK, null, pdfDocument));
+		return barcodeImage;
+	}
+}
+
+public Document PopulateTable(Document document, IEnumerable<Pick> noForms, PdfDocument pdfDocument, string choice)
+{
+	var viewModel = noForms.Where(w => w.NavJobID != null).Select(s => new Pick
+	{
+		NavJobID = s.NavJobID,
+		NavisionStock = s.NavisionStock,
+		QuantityToPick = s.QuantityToPick,
+		Type = s.Type,
+		SlaDate = s.SlaDate
+	}).ToList();
+
+	foreach (var model in viewModel)
+	{
+		var table = CreateTable(choice);
+		PdfFont bold = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.TIMES_ROMAN);
+		var stockTypeStr = GetStockTypeForBarcode(model.Type);
+		string date = DateTime.Now.ToString("ddMMyy");
+		string pvo = model.NavJobID.Substring(3);
+		string barcodeData = string.Format(pvo + "|" + date + model.QuantityToPick + stockTypeStr);
+
+		if (choice == "label")
+		{
+			var barcodeImage = CreateBarcode128Image(pdfDocument, choice, barcodeData);
+
+			Cell item_qty = new Cell().SetVerticalAlignment(VerticalAlignment.BOTTOM);
+			item_qty.SetHeight(14).SetMargins(0, 0, 0, 0).SetFontSize(10).SetBorder(Border.NO_BORDER);
+			var foo = string.Format("{0}  Qty: {1}", model.NavisionStock, model.QuantityToPick);
+			item_qty.Add(new Paragraph(foo).SetMargins(0, 0, 0, 0)).SetTextAlignment(TextAlignment.CENTER);
+			table.AddCell(item_qty);
+
+			table.StartNewRow();
+			Cell pvoCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			pvoCell.SetHeight(22).SetMargins(0, 0, 0, 0).SetFontSize(16).SetBorder(Border.NO_BORDER);
+			pvoCell.Add(new Paragraph(model.NavJobID).SetMargins(0, 0, 0, 0))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFont(bold);
+			table.AddCell(pvoCell);
+
+			table.StartNewRow();
+			Cell barcodeCell = new Cell().SetVerticalAlignment(VerticalAlignment.TOP);
+			barcodeCell.SetHeight(22).SetMargins(0, 0, 0, 0).SetBorder(Border.NO_BORDER);
+			barcodeCell.Add(barcodeImage).SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			table.AddCell(barcodeCell);
+
+			document.Add(table);
+			if (!viewModel.LastOrDefault().Equals(model))
+			{
+				document.Add(new AreaBreak());
+			}
+		}
+		if(choice == "ticket")
+		{
+			Cell itemNoCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			itemNoCell.Add(new Paragraph("Item No."))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(12);
+				//.SetFont(bold);
+			table.AddCell(itemNoCell);
+
+			Cell itemNoCell2 = new Cell();
+			itemNoCell2.SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			itemNoCell2.Add(new Paragraph(model.NavisionStock))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(16)
+				.SetFont(bold);
+			table.AddCell(itemNoCell2);
+
+			var barcodeImage = CreateBarcode128Image(pdfDocument, choice, barcodeData);
+			barcodeImage.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			table.StartNewRow();
+			Cell pvoCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			pvoCell.SetHeight(100f);
+			pvoCell.SetWidth(52f);
+			pvoCell.Add(new Paragraph("PVO"))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(12);
+			table.AddCell(pvoCell);
+
+			#region PVOno.
+			//Cell pvoCell2 = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			//pvoCell2.SetHeight(100f);
+			//pvoCell2.SetWidth(152f);
+			//pvoCell2.Add(new Paragraph(model.NavJobID))
+			//    .SetTextAlignment(TextAlignment.CENTER)
+			//    .SetFontSize(16)
+			//    .SetFont(bold);
+			//table.AddCell(pvoCell2);
+			#endregion
+			Cell barcodeCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			barcodeCell.SetHeight(100f).SetWidth(148f).SetMargins(0, 0, 0, 0);
+			barcodeCell.Add(new Paragraph(model.NavJobID))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(16).SetFont(bold);
+			barcodeCell.Add(barcodeImage).SetHorizontalAlignment(HorizontalAlignment.RIGHT);
+			table.AddCell(barcodeCell);
+
+			table.StartNewRow();
+			Cell slaCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			slaCell.Add(new Paragraph("SLA"))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(12);
+				//.SetFont(bold);
+			table.AddCell(slaCell);
+
+			Cell slaCell2 = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			slaCell2.Add(new Paragraph(model.SlaDate.Value.ToShortDateString()))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(16)
+				.SetFont(bold);
+			table.AddCell(slaCell2);
+
+			table.StartNewRow();
+			Cell pickCell = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			pickCell.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			pickCell.Add(new Paragraph("Pick Qty."))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(12);
+				//.SetFont(bold);
+			table.AddCell(pickCell);
+
+			Cell pickCell2 = new Cell().SetVerticalAlignment(VerticalAlignment.MIDDLE);
+			pickCell2.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			pickCell2.Add(new Paragraph(model.QuantityToPick.ToString()))
+				.SetTextAlignment(TextAlignment.CENTER)
+				.SetFontSize(16)
+				.SetFont(bold);
+			table.AddCell(pickCell2);
+
+			document.Add(table);
+			if (!viewModel.LastOrDefault().Equals(model))
+			{
+				document.Add(new AreaBreak());
+			}
+		}
+	}
+	return document;
+}

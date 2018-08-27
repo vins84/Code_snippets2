@@ -1,0 +1,482 @@
+//==================		Button to call the method		===================
+<input type="button" class="btn btn-primary" id="ticket-btn" value="Print tickets" onclick="print('ticket')" />
+<input type="button" class="btn btn-primary" id="label-btn" value="Print labels" onclick="print('label')" />
+
+
+//==================		div to view the results		===================
+//==================	this points to the method that pulls the pdf from the harddrive
+<div>
+	@Html.Partial("DisplayPDF")
+</div>  
+
+
+//==================		jQuery to pull the info		===================
+<script>
+    function print(button) {
+        if (button === "ticket") {
+            debugger;
+            var ticketModel =
+                '@Html.Raw(Json.Encode(Model.Items.Select(job => new PrintViewModel { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityRequired, SLA = job.SlaDate.Value.Date.ToShortDateString() }).ToList()))';
+            var ticketViewModel = JSON.parse(ticketModel);
+
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Print", "MI")',
+                    data: { viewModel: ticketViewModel, choice: button },
+                    cache: true
+                })
+                .done(function (ticketViewModel) {
+                    console.log('success');
+                    location.reload();
+                    $('#partial-view-result').html(ticketViewModel);
+                });
+        }
+
+        if (button === "label") {
+            var labelModel = '@Html.Raw(Json.Encode(Model.Items.Select(job => new PrintViewModel {NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityRequired}).ToList()))';
+            var labelViewModel = JSON.parse(labelModel);
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Print", "MI")',
+                    data: { viewModel: labelViewModel, choice: button },
+                    cache: true
+                })
+                .done(function (ticketModel) {
+                    console.log('success');
+                    location.reload();
+                    $('#partial-view-result').html(ticketModel);
+                });
+        }
+    };
+</script>
+
+public void Print(List<PrintViewModel> viewModel, string choice)
+{
+	var pdf = CreateDocument();
+	string barcodeImg = CreateBarcodeTest();
+	DefineStyles(pdf, choice, barcodeImg);
+	GenerateTable(pdf, viewModel, choice, barcodeImg);
+
+	PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false, PdfFontEmbedding.Always);
+	pdfRenderer.Document = pdf;
+	pdfRenderer.RenderDocument();
+
+	string filename = "ToBePrinted.pdf";
+	string path = "C:\\ProjectsGitTEST\\";
+	string filepath = string.Format(path + filename);
+	pdfRenderer.PdfDocument.Save(filepath);
+	Process.Start(filepath);
+
+	DisplayPDF(pdf);
+}	
+
+public Document CreateDocument()
+{
+	Document document = new Document();
+	document.Info.Title = "D&G_PVO_Tickets";
+	document.Info.Author = "Adare SEC Ltd";
+	return document;
+}
+
+public static void DefineStyles(Document document, string choice, string barcodeImage)
+{
+	Style style = document.Styles["Normal"];
+	style.Font.Name = "Times New Roman";
+	style.Font.Bold = true;
+
+	if (choice == "label")
+	{
+		Section section = document.AddSection();
+		section.PageSetup = document.DefaultPageSetup.Clone();
+		section.PageSetup.PageHeight = Unit.FromMillimeter(30);
+		section.PageSetup.PageWidth = Unit.FromMillimeter(50);
+
+		section.PageSetup.TopMargin = Unit.FromMillimeter(1);
+		section.PageSetup.RightMargin = Unit.FromMillimeter(1);
+		section.PageSetup.LeftMargin = Unit.FromMillimeter(2);
+		section.PageSetup.BottomMargin = Unit.FromMillimeter(1);
+	}
+	else
+	{
+		Section section = document.AddSection();
+		section.PageSetup = document.DefaultPageSetup.Clone();
+		section.PageSetup.PageHeight = Unit.FromMillimeter(80);
+		section.PageSetup.PageWidth = Unit.FromMillimeter(80);
+
+		section.PageSetup.TopMargin = Unit.FromMillimeter(2);
+		section.PageSetup.RightMargin = Unit.FromMillimeter(2);
+		section.PageSetup.LeftMargin = Unit.FromMillimeter(3);
+		section.PageSetup.BottomMargin = Unit.FromMillimeter(2);
+	}
+}
+
+public static Document GenerateTable(Document document, List<PrintViewModel> viewModel, string choice, string barcodeImage)
+{
+	if (choice == "label")
+	{
+		foreach (var model in viewModel)
+		{
+			Table table = new Table();
+			//table.Borders.Width = 0.1;
+			Column column = table.AddColumn(Unit.FromMillimeter(47));
+			//column.Format.Font.Size = 10;
+
+			Row row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(8));
+			Cell cell = row.Cells[0];
+			cell.AddParagraph(model.NavisionItem + "  " + " Qty: " +  model.Quantity);
+			cell.Format.Font.Size = 11;
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+
+			row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(8));
+			cell = row.Cells[0];
+			cell.AddParagraph(model.PVONumber);
+			cell.Format.Font.Size = 18;
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+
+			row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(11));
+			cell = row.Cells[0];
+			cell.AddImage(barcodeImage);
+			cell.Format.Font.Size = 12;
+			//row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+			cell.Format.LeftIndent = MigraDoc.DocumentObjectModel.Unit.FromMillimeter(0);
+			//byte[] image = LoadImage(barcodeImage);
+			//string imageFilename = MigraDocFilenameFromByteArray(image);
+			
+			table.SetEdge(0, 0, 1, 3, Edge.Box, BorderStyle.Single, 0.5, Colors.Black);
+			document.LastSection.Add(table);
+		}
+	}
+	else
+	{
+		foreach (var model in viewModel)
+		{
+			Table table = new Table();
+			table.Borders.Width = 0.55;
+			table.AddColumn(Unit.FromMillimeter(18));
+
+			Column column = table.AddColumn(Unit.FromMillimeter(59));
+			column.Format.Font.Size = 15;
+			Row row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(10));
+			Cell cell = row.Cells[0];
+			cell.AddParagraph("Item No");
+			cell = row.Cells[1];
+			cell.AddParagraph(model.NavisionItem);
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+			row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
+
+			row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(41));
+			cell = row.Cells[0];
+			cell.AddParagraph("PVO");
+			cell = row.Cells[1];
+			cell.AddParagraph(model.PVONumber);
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+			row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
+
+			row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(10));
+			cell = row.Cells[0];
+			cell.AddParagraph("SLA");
+			cell = row.Cells[1];
+			cell.AddParagraph(model.SLA);
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+			row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
+
+			row = table.AddRow();
+			row.Height = (Unit.FromMillimeter(10));
+			cell = row.Cells[0];
+			cell.AddParagraph("Pick Qty");
+			cell = row.Cells[1];
+			cell.AddParagraph(model.Quantity.ToString());
+			row.Format.Alignment = ParagraphAlignment.Center;
+			row.Cells[0].VerticalAlignment = VerticalAlignment.Center;
+			row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
+
+			table.SetEdge(0, 0, 2, 4, Edge.Box, BorderStyle.Single, 1, Colors.Black);
+
+			document.LastSection.Add(table);
+		}
+	}
+	return document;
+}
+
+//  and finally this is the method to generate the barcode	! ! ! !
+//	Dont forget nuget: Install-Package BarcodeLib -Version 1.0.0.23
+
+public string CreateBarcodeTest()
+{
+	using (var ms = new MemoryStream())
+	{
+		BarcodeLib.Barcode barcode = new BarcodeLib.Barcode()
+		{
+			IncludeLabel = false,
+			Alignment = AlignmentPositions.CENTER,
+			Width = 180,
+			Height = 30,
+			RotateFlipType = RotateFlipType.RotateNoneFlipNone,
+			BackColor = System.Drawing.Color.White,
+			ForeColor = System.Drawing.Color.Black,
+		};
+
+		System.Drawing.Image img = barcode.Encode(TYPE.CODE128B, "THIS IS ME 0");
+		string filename = "BarcodeTestNew.jpeg";
+		string path = "C:\\ProjectsGitTEST\\";
+		string filepath = string.Format(path + filename);
+
+		img.Save(filepath, ImageFormat.Jpeg);
+
+		img.Save(ms, ImageFormat.Jpeg);
+
+		//return File(ms.ToArray(), "image/jpeg");
+		return filepath;
+	}
+}
+		
+// This is another way of making a barcode but with pdfSharp and saving it in a pdfDocument(pdfSharp)
+public PdfDocument CreateBarcode()
+{
+	PdfDocument document = new PdfDocument();
+	PdfPage page = document.AddPage();
+	page.Width = XUnit.FromMillimeter(50);
+	page.Height = XUnit.FromMillimeter(30);
+	//page.TrimMargins.All = XUnit.FromMillimeter(50) ;
+	//page.TrimMargins.Top = XUnit.FromMillimeter(75);
+	//page.TrimMargins.Right = 5;
+	//page.TrimMargins.Bottom = 5;
+	//page.TrimMargins.Left = 15;
+
+	Code3of9Standard BarCode39 = new Code3of9Standard("128");
+	BarCode39.TextLocation = new TextLocation();
+	BarCode39.Text = "THIS IS MY BLOODY STRING";                    //value of code to draw on page(aLL CAPS)
+	BarCode39.StartChar = Convert.ToChar("*");
+	BarCode39.EndChar = Convert.ToChar("*");
+	BarCode39.Direction = CodeDirection.LeftToRight;
+	XFont fontBARCODE = new XFont("Arial", 8, XFontStyle.Regular);
+
+	////==============    Point(width, height)
+	var barcodeWidth = XUnit.FromMillimeter(40);
+	var barcodeHeight = XUnit.FromMillimeter(10);
+
+	XPoint barcodePoint = new XPoint(barcodeWidth, barcodeHeight);
+	XSize BARCODE_SIZE = new XSize(barcodePoint.X, barcodePoint.Y);
+	BarCode39.Size = BARCODE_SIZE;
+
+
+	XGraphics gfx = XGraphics.FromPdfPage(page);
+	var position_X = XUnit.FromMillimeter(5);
+	var position_Y = XUnit.FromMillimeter(18);
+	XPoint position = new XPoint(position_X, position_Y);
+	gfx.DrawBarCode(BarCode39, XBrushes.Black, fontBARCODE, position);
+
+	string filename = "BarcodeTestNew.pdf";
+	string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+	string filepath = string.Format(path + filename);
+	document.Save(filepath);
+	Process.Start(filepath);
+
+	return document;
+}
+
+		
+//==================		THIS IS JUST TO Test 	-	testing pulling info with C# instead of jQuery		===================	
+@using (Html.BeginForm("PVOCheck2", "MI", FormMethod.Post, new { Class = "form-horizontal" }))
+	{
+		List<LabelViewModel> me = new List<LabelViewModel>();
+		foreach (var job in Model.Items.Where(t => t.Type == StockType.Insert))
+		{
+			@Html.Hidden("NavisionItem", job.NavisionStock)
+			@Html.Hidden("PVONumber", job.NavJobID)
+			@Html.Hidden("Quantity", job.QuantityToPick.ToString())
+			me.Add(new LabelViewModel() { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityToPick });
+			//LabelViewModel me = new LabelViewModel() { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityToPick };
+			//List<LabelViewModel> me = new List<LabelViewModel>() { new LabelViewModel() { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityToPick }};
+
+		}
+
+
+		@Html.ActionLink("PVO Check/Print Labels", "PVOCheck2", "MI", new
+		{
+			//reportTime = @Model.StreamDate.Value,
+			labelViewModel = Json.Encode(Model.Items.Select(job => new LabelViewModel { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityToPick }).ToList())
+		}, new { @class = "btn btn-info" })
+		<input type="submit" class="btn btn-primary" style="float:right;" value="whoopWhoop" onclick="working();" />
+	}
+	
+	
+	
+//==================		Controller methods		===================		
+public FileResult PVOCheck2(List<LabelViewModel> labelViewModel)
+{
+	LabelViewModel one = labelViewModel.FirstOrDefault();
+
+	TestPdf(one);
+
+	byte[] pdf = SavePdf(one);
+
+
+
+	return File(pdf, "application/pdf");
+}
+
+public void TestPdf(LabelViewModel viewModel)
+{
+	// Create a new PDF document
+	PdfDocument document = new PdfDocument();
+	document.Info.Title = "Created with PDFsharp";
+
+	// Create an empty page
+	PdfPage page = document.AddPage();
+
+	// Get an XGraphics object for drawing
+	XGraphics gfx = XGraphics.FromPdfPage(page);
+	DrawRectangle(gfx, 2);
+	// Create a font
+	XFont font = new XFont("Verdana", 20, XFontStyle.BoldItalic);
+
+	// Draw the text
+	gfx.DrawString(viewModel.NavisionItem + "-" + viewModel.PVONumber + "-" + viewModel.Quantity, font, XBrushes.Black,
+	  new XRect(5, 5, page.Width, page.Height),
+	  XStringFormats.Center);
+
+	// Save the document...
+	const string filepath = "c:\\ProjectsGit\\";
+	const string filename = "HelloWorld.pdf";
+	var path = string.Format(filepath + filename);
+
+	document.Save(path);
+	// ...and start a viewer.
+	Process.Start(filename);
+}
+
+void DrawRectangle(XGraphics gfx, int number)
+{
+	BeginBox(gfx, number, "DrawRectangle");
+
+	XPen pen = new XPen(XColors.Navy, Math.PI);
+	XPen pen2 = new XPen(XColor.FromName("black"));
+
+	gfx.DrawRectangle(pen, 10, 0, 100, 60);
+	gfx.DrawRectangle(pen2, 100, 0, 200,0);
+
+	gfx.DrawRectangle(XBrushes.Azure, 130, 0, 100, 60);
+	gfx.DrawRectangle(pen, XBrushes.Blue, 10, 80, 100, 60);
+	gfx.DrawRectangle(pen, XBrushes.Brown, 150, 80, 60, 60);
+
+	EndBox(gfx);
+}
+public void BeginBox(XGraphics gfx, int number, string title)
+{
+	XRect rect = new XRect(0, 10, 200, 100);
+	//if (number % 2 == 0)
+	//    rect.X = 300 - 5;
+	//rect.Y = 40 + ((number - 1) / 2) * (200 - 5);
+	//rect.Inflate(-10, -10);
+	//rect.Inflate(-5, -5);
+
+	XFont font = new XFont("Verdana", 12, XFontStyle.Regular);
+	gfx.DrawString(title, font, XBrushes.Navy, rect, XStringFormats.TopCenter);
+
+	//rect.Inflate(-10, -5);
+	//rect.Y += 20;
+	//rect.Height -= 20;
+
+	//this.state = gfx.Save();
+	gfx.Save();
+	gfx.TranslateTransform(rect.X, rect.Y);
+}
+
+public void EndBox(XGraphics gfx)
+{
+	gfx.Restore();
+}
+
+
+public Byte[] SavePdf(LabelViewModel viewModel)
+{
+	MemoryStream stream = new MemoryStream();
+
+	PdfGenerateConfig config = new PdfGenerateConfig
+	{
+		PageOrientation = PageOrientation.Portrait,
+		PageSize = PageSize.B1,
+		MarginTop = 10,
+		MarginBottom = 10,
+		MarginLeft = 10,
+		MarginRight = 10
+	};
+	config.ManualPageSize = new PdfSharp.Drawing.XSize(900, 800);
+
+	ViewData.Model = viewModel;
+	using (var sw = new StringWriter())
+	{
+		var viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, "Index");
+		var viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
+		viewResult.View.Render(viewContext, sw);
+		viewResult.ViewEngine.ReleaseView(ControllerContext, viewResult.View);
+		var pageModelString = sw.GetStringBuilder().ToString();
+		string css = ".columnWidth{ width: 100px; text-align: centre; } " +
+					 "td{ page-break-inside: avoid; page-break-before: avoid; page-break-after: avoid; } " +
+					 "tr{ page-break-inside: avoid; page-break-before: avoid; page-break-after: avoid; }";
+		PdfDocument pdf = PdfGenerator.GeneratePdf(pageModelString, config, PdfGenerator.ParseStyleSheet(css));
+		pdf.Info.Author = "AdareSEC";
+		pdf.Info.Title = "Scanned Barcodes";
+		pdf.Save(stream, false);
+
+		return stream.ToArray();
+	}
+}
+
+
+//===========================			Method for the barcode	(PdfSharp)	====================================
+PdfDocument document = new PdfDocument();
+PdfPage page = document.AddPage();
+page.Width = XUnit.FromMillimeter(50);
+page.Height = XUnit.FromMillimeter(30);
+//page.TrimMargins.All = XUnit.FromMillimeter(50) ;
+//page.TrimMargins.Top = 5;
+//page.TrimMargins.Right = 5;
+
+
+/* use different codes for different barcodes */
+Code3of9Standard BarCode39 = new Code3of9Standard("128");
+BarCode39.TextLocation = new TextLocation();
+BarCode39.Text = "THIS IS MY BLOODY STRING";                    //value of code to draw on page(aLL CAPS)
+BarCode39.StartChar = Convert.ToChar("*");
+BarCode39.EndChar = Convert.ToChar("*");
+BarCode39.Direction = CodeDirection.LeftToRight;
+XFont fontBARCODE = new XFont("Arial", 8, XFontStyle.Regular);
+
+////==============    Point(width, height)
+var barcodeWidth = XUnit.FromMillimeter(40);
+var barcodeHeight = XUnit.FromMillimeter(10);
+
+XPoint barcodePoint = new XPoint(barcodeWidth, barcodeHeight);
+XSize BARCODE_SIZE = new XSize(barcodePoint.X, barcodePoint.Y);
+BarCode39.Size = BARCODE_SIZE;
+
+XGraphics gfx = XGraphics.FromPdfPage(page);
+var position_X = XUnit.FromMillimeter(5);
+var position_Y = XUnit.FromMillimeter(18);
+XPoint position = new XPoint(position_X, position_Y);
+gfx.DrawBarCode(BarCode39, XBrushes.Black, fontBARCODE, position);
+
+// Define a rotation transformation at the center of the page 
+//gfx.TranslateTransform(page.Width / 2, page.Height / 2);
+//gfx.RotateTransform(-Math.Atan(page.Height / page.Width) * 180 / Math.PI);
+//gfx.TranslateTransform(-page.Width / 2, -page.Height / 2);
+
+string filename = "NewBarcodeTest.pdf";
+string path = "\\\\172.16.1.6\\General_Public\\Miroslaw Kaczor\\";
+string filepath = string.Format(path + filename);
+document.Save(filepath);
+Process.Start(filepath);

@@ -1,0 +1,34 @@
+// ===========      Shopping Cart Example Code In ASP.NET C# VB.NET GridView    ==========
+http://csharpdotnetfreak.blogspot.com/2009/05/aspnet-creating-shopping-cart-example.html
+
+
+// ============   Constructors in C#   =================================
+http://www.codeproject.com/Articles/7011/An-Intro-to-Constructors-in-C
+http://www.aspdotnet-suresh.com/2013/09/csharp-constructor-example-types-of-constructor-in-csharp.html
+
+
+
+// ============   Entity Framework Explained   -  GOOD   =================================
+http://www.entityframeworktutorial.net/what-is-entityframework.aspx
+
+
+
+// ============          C# Shortcuts !!!            =================================
+
+http://visualstudioshortcuts.com/2013/
+
+
+
+
+
+
+
+
+https://stackoverflow.com/questions/28924551/how-to-open-bootstrap-modal-in-ajax-success
+
+https://blog.miguelgrinberg.com/post/writing-a-javascript-rest-client						-	Good
+
+http://formvalidation.io/examples/loading-saving-data-modal/								-	Good
+
+
+

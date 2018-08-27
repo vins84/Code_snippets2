@@ -1,0 +1,82 @@
+BitBucket
+Account: Miroslaw Kaczor
+User: miroslaw_kaczor
+Email: miroslawkaczor@hotmail.co.uk	
+Password: Miroslaw_84
+
+
+https://miroslaw_kaczor@bitbucket.org/miroslaw_kaczor/
+
+
+GIT
+User: vins84
+Password: Miroslaw_84
+https://github.com/vins84/YW_Technical.git
+
+
+
+
+//============  GIT BASH Terminal	=========
+Change directory:
+cd "/C/Users/Miroslaw/Desktop/FDM/OOD/My notes/New folder Notes/snippets_and_learning_materials"
+
+
+git remote rm origin
+
+git commit -a 	-	will commit all tracked files, not track untracked files. 
+git add . 		-	will track untracked files in the current directory. 
+git add -a 		-	will track all untracked files
+git add --all	-	will track all files ????  (needs checking if works)
+
+
+https://gist.github.com/davfre/8313299																-		GOOD CHEATSHEET
+https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/		-		Adding existing project to GitHub using Terminal
+
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <project url>
+git push -f origin master
+
+
+
+//===================		Adding an existing project to github		=====================
+1.	Create a new repository on GitHub. To avoid errors, do not initialize the new repository with README, license, or gitignore files. 
+	You can add these files after your project has been pushed to GitHub.
+
+2. 	Open Git Bash.
+
+3.	Change the current working directory to your local project.
+cd "/C/Users/Miroslaw/Desktop/FDM/OOD/My notes/New folder Notes/snippets_and_learning_materials"
+
+4.	Initialize the local directory as a Git repository.
+git init
+
+5.	Add the files in your new local repository. This stages them for the first commit.
+git add .
+# Adds the files in the local repository and stages them for commit. To unstage a file, use 'git reset HEAD YOUR-FILE'.
+
+6.	Commit the files that you've staged in your local repository.
+git commit -m "First commit"
+# Commits the tracked changes and prepares them to be pushed to a remote repository. 
+To remove this commit and modify the file, use 'git reset --soft HEAD~1' and commit and add the file again.
+
+7.	In the Command prompt, add the URL for the remote repository where your local repository will be pushed.
+git remote add origin remote repository URL
+git remote add origin https://github.com/vins84/Code-Snippets.git
+
+# Sets the new remote
+git remote -v
+# Verifies the new remote URL
+
+8.	Push the changes in your local repository to GitHub.
+git push origin master
+# Pushes the changes in your local repository up to the remote repository you specified as the origin
+
+Sometimes you may need to add --force to the commit
+git push origin master --force
+
+
+
+
+

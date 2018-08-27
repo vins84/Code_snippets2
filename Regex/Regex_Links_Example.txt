@@ -1,0 +1,165 @@
+//==========	REGEX 	===============
+https://www.icewarp.com/support/online_help/203030104.htm
+http://regexr.com/							-		Great Cheatcodes and Online tester!
+http://regexstorm.net/Tester				-		Online tester!
+http://www.regexlib.com/RETester.aspx		-		Online Tester!
+https://simple-regex.com/examples
+http://www.rexegg.com/regex-csharp.html#threethings
+https://regexone.com/lesson/character_ranges
+https://www.codeproject.com/Articles/9099/The-Minute-Regex-Tutorial
+https://www.icewarp.com/support/online_help/203030104.htm
+http://www.regular-expressions.info/near.html
+
+
+
+[0-9](?=[a-z])  will match any one digit followed by a lowercase letter.
+[0-9](?![a-z])  will match any one digit NOT followed by a lowercase letter. (this is called a negative lookahead)
+(?<=[a-z])[0-9] will match any one digit preceeded by a lowercase letter.
+(?<![a-z])[0-9] will match any one digit NOT preceeded by a lowercase letter.(this is called a negative lookbehind)
+
+([^/\\]+)(\.[^/\\]+?)?
+The first capture group will contain your file's basename and the second capture group will contain the extension, including the '.' character, if it exists.
+You can reference the two capture groups in the 'Replace' section with $1 and $2
+
+([a-zA-Z0-9\-]+?)		-		Selects all
+(^.*[A-Z]{2,}.*$)		-		Selects all
+
+(^GB)\d{8}(?:[A-Z])+
+(^GB)\d{8}\D.
+(RB)+
+(^GB)\d{8}([A-Z]{2,})
+([A-Z].)(?=_)
+
+\d{8}(\w.)
+
+(?<=[0-9])[A-Z].			// Selects two characters after digits
+(?<=[0-9])[A-Z].*?(?=_)		// Selects all letters after digits but before "_"
+(^GB).*?(?=[A-Za-z])		// Selects all characters until letters
+(?<=[0-9][A-Z].).*?(?=_)	// Selects two letters before "_"
+
+^[0-9]{10}[A-Z]{3}[0-9]{9}	//LArgeLetterManualReturn
+
+//--------------------   tests   ---------------------
+(^GB)\d{8}(?:[A-Z])+
+(^GB)\d{8}\D.
+(RB)+
+(^GB)\d{8}([A-Z]{2,})
+([A-Z].)(?=_)
+
+\d{8}(\w.)
+
+(?<=[0-9])[A-Z].			// Selects two letter after digits
+(?<=[0-9])[A-Z].*?(?=_)		// Selects all letters after digits but before "_"
+(^GB).*?(?=[A-Za-z])		// Selects all characters until letters
+
+
+Regex.Matches(item.ToString(), "[^0-9a-zA-Z]\\s*");
+\\s* includes space
+[A-Z ] this includes the space too
+
+Regex.Matches(item.ToString(), @"([0-9a-zA-Z /+-]+)");
+
+
+^.*?\|(.*?)\|.*$
+Explanation:
+
+^.*?\|    consume everything up until the first pipe
+(.*?)|    match and consume everything between the first and second pipes
+.*$       consume the remainder of the line
+
+
+//----------------------------------------------------
+//Regex regex = new Regex(@"\d+");
+//Match match = regex.Match("Dot 5515 Perls");
+//if (match.Success)
+//{
+//    Console.WriteLine(match.Value);
+//}
+
+
+//Match match = Regex.Match(input, @"GB00151617/([A-Za-z0-9\-]+)\_RENEWAL_0000000002_GB_ENG_REDD_F_DISKPDD_N_I_MONO.csv$",
+//RegexOptions.IgnoreCase);
+
+//// Here we check the Match instance.
+//if (match.Success)
+//{
+//    // Finally, we get the Group value and display it.
+//    string key = match.Groups[1].Value;
+//    Console.WriteLine(key);
+//}
+//else
+//{
+//    Console.WriteLine("SHIT");
+//}
+
+
+string[] input =
+	{
+		"GB00151617RB_RENEWAL_0000000002_GB_ENG_REDD_F_DISKPDD_N_I_MONO.csv",
+		//"GB00151617RA_RENEWAL_0000000002_GB_ENG_REDD_F_DISKPDD_N_I_MONO.csv",
+		//"GB00151617_RENEWAL_0000000002_GB_ENG_REDD_F_DISKPDD_N_I_MONO.csv"
+	};
+string input2 = "GB00151617RB_RENEWAL_0000000002_GB_ENG_REDD_F_DISKPDD_N_I_MONO.csv";
+
+string pattern = "^GB\\d{8}";
+
+
+foreach (var s in input)
+{
+	//Console.WriteLine("{0,14}", s);
+	if (Regex.IsMatch(s, pattern))
+	{
+
+		//string replaced = Regex.Replace(s, @"RB", String.Empty);          //This worked - removed RB from the end of the word
+		//var regex = new Regex(@"\BRB\B");                                   // Those two lines worked too
+		//var replaced = regex.Replace(input2, string.Empty);
+
+
+		//string[] replacements = { "RA", "DA", "BP" };
+		//var mystring = Regex.Replace(input2, @"RB", replacements[1]);
+		//Console.WriteLine(mystring);
+	}
+}
+
+
+string pattern = new Regex("(\\w.)(?=_)", RegexOptions.IgnoreCase).Replace(input2, String.Empty, 1);		//This defo works :)!!!
+
+
+//--------------------   Some Random Info   ---------------------
+1) Regex Match everything till the first "-"
+
+	Match result = Regex.Match(text, @"^.*?(?=-)");
+	^ match from the start of the string
+	.*? match any character (.), zero or more times (*) but as less as possible (?)
+	(?=-) till the next character is a "-" (this is a positive look ahead)
+
+2) Regex Match anything that is not a "-" from the start of the string
+
+	Match result2 = Regex.Match(text, @"^[^-]*");
+	[^-]* match any character that is not a "-" zero or more times
+	2)1) Regex Match anything that is not a "-" from the start of the string till a "-"
+
+	Match result21 = Regex.Match(text, @"^([^-]*)-");
+	Will only match if there is a dash in the string, but the result is then found in capture group 1.
+
+3) Split on "-"
+
+	string[] result3 = text.Split('-');
+	Result is an Array the part before the first "-" is the first item in the Array
+
+4) Substring till the first "-"
+
+	string result4 = text.Substring(0, text.IndexOf("-"));
+	Get the substring from text from the start till the first occurrence of "-" (text.IndexOf("-"))
+	You get then all the results (all the same) with this
+
+	Console.WriteLine(result);
+	Console.WriteLine(result2);
+	Console.WriteLine(result21.Groups[1]);
+	Console.WriteLine(result3[0]);
+	Console.WriteLine(result4);
+	I would prefer the The first method.
+
+You need to think also about the behaviour, when there is no dash in the string. 
+The fourth method will throw an exception in that case, because text.IndexOf("-") will be -1. 
+Method 1 and 2.1 will return nothing and method 2 and 3 will return the complete string.

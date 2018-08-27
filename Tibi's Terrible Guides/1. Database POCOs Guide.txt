@@ -1,0 +1,143 @@
+// ---------------------------------------------------------------------------------------------
+// ------------------- Setting up Database Tables using the Code First Model -------------------
+// ---------------------------------------------------------------------------------------------
+
+// For better visibility, use Notepad++ and go to Language -> C -> C#.
+
+// This guide only contains information on how to set up a database.
+// Run Start SQL Server 2014 from the Windows Start Menu (you have to do this after every restart or shutdown of the machine)
+// Create a class library project just for POCO (Plain Old CLR Object) classes. The solution will contain all projects except for the MVC project,
+// 	so make sure the name of the solution is more general like the name of the website. For the POCO project, I set the name as the name of the project with the addition of 'POCOs' to it.
+// Add references to System.ComponentModel.DataAnnotations and System.Runtime.Serialization
+// Now make the classes. The naming convention of each class is singular (i.e. User). These classes will serve as templates when building the SQL tables later.
+// For each POCO class, add these usings at the top:
+
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+
+// The first line is for basic annotations that set up primary keys, and other attributes like 'Required' or 'MaxLength'
+// The second line is for setting up contracts and data members, so you need it for the 'DataContract' and 'DataMember' attributes
+// When you need foreign keys or special attributes like 'Index', add this using:
+
+using System.ComponentModel.DataAnnotations.Schema;
+
+// For the 'Index' keyword, you must install Entity Framework 6.0 minimum. To do that, go to Tools -> NuGet Package Manager -> Package Manager Console and type this:
+
+Install-Package EntityFramework
+
+// 'Index' requires 'MaxLength' (default length is MAX if this keyword is not used, 'Index' doesn't like MAX) to work when building the database, otherwise you will encounter errors.
+// Each table column (indicated by the 'DataMember' attribute) is written as a property in C#. These will be the headers of the table.
+// Each table (indicated by the 'DataContract' attribute) must have a primary key (and only one).
+// 'DataContract' and 'DataMember' don't have to be there, but it is good practice to have them. They will make your life easier later. See 4. WCF Service Guide -> Building a Service
+//  and look for the last lines in the chapter (right before 'Hosting a Service').
+// [Index(IsUnique = true)] sets column values to unique (avoids duplicate email accounts in databases).
+// Required = Does not allow column values to be null (useful when completing a registration/login form).
+// [MaxLength(100)] sets the character limit (does not work on int) to 100.
+
+// ----- POCO Class Example ----- //
+
+// Below is an example of a POCO class requiring all three usings:
+    
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
+
+namespace eGamesPOCOs
+{
+    [DataContract]
+    public class Account
+    {
+        [Key, DataMember]
+        public int AccountId { get; set; }
+
+        [DataMember, Required, MaxLength(100), Index(IsUnique = true)]
+        public string Username { get; set; }
+
+        [DataMember, Required, MaxLength(100), Index(IsUnique = true)]
+        public string Email { get; set; }
+
+        [DataMember, Required]
+        public string Password { get; set; }
+
+        [DataMember]
+        public bool IsAdmin { get; set; }
+    }
+}
+
+// For more examples of POCO classes go to the 'Additional Info' section below.
+
+// ---------------------------------------------------------------------------------------------
+// -------------------------------------- Additional Info --------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ----- ERRORS ----- //
+// Case 1: When Setting up the classes in the ERD, try not to have more than 1 path between any 2 tables, otherwise you risk a cycle cascading error when migrating.
+// Case 2: username in Table2 is a FK, but in Table 1 it is a string. The build won't work. The code will look for a key in Table1 automatically.
+
+// ----- How to Deal with Circular References  ------ //
+
+[DataContract(IsReference = true)]
+
+// ----- Making a List of Objects from Another POCO Class  ------ //
+
+[DataMember]
+public virtual List<ChatRoom> ChatRooms { get; set; }
+
+// ----- POCO Class with a Foreign Key ------ //
+
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
+
+namespace eGamesPOCOs
+{
+    [DataContract]
+    public class Basket
+    {
+        [Key, DataMember]
+        public int BasketId { get; set; }
+
+        [ForeignKey("Account"), DataMember]
+        public int AccountId { get; set; }
+        public virtual Account Account { get; set; }
+    }
+}
+
+// For FKs, the line after the one with the property must define the reference to the class the key originates from. The name in quotations must match the name in this line.
+// virtual is required for the Framework to function properly
+
+// ----- POCO Class with a Composite Key ------ //
+
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
+
+namespace ChatSystem
+{
+    public class ChatRoomOwner
+    {
+        private int userId;
+
+        public ChatRoomOwner()
+        {
+            
+        }
+
+        public ChatRoomOwner(int userId)
+        {     
+            this.userId = userId;
+            this.ChatRoomId = ChatRoomId;
+        }
+
+        [Key, Column(Order = 0), DataMember]
+        public int ChatRoomId { get; set; }
+        public virtual ChatRoom ChatRoom { get; set; }
+
+        [Key, Column(Order = 1), DataMember]
+        public int UserId { get; set; }
+        public virtual User User { get; set; }
+    }
+}
+
+// This example is from another project.
+// ChatRoomOwner is a linking table whose primary key is actually a composite key made from two foreign keys.

@@ -1,0 +1,93 @@
+//===========  Input the picture from Images Folder and pic ActionLink + ActionLink   ==================
+
+			<div class="item">
+                <img src="~/Images/12380017_1056657711052398_291416939_n.jpg" style="height:500px;width:700px;" />
+				// Or better like that 
+				//<a href='@Url.Action("Create", "Register")'><img src='@Url.Content("~/Images/DSC04392.JPG")' , style="height:500px;width:700px;" /></a>
+                <div class="carousel-caption">
+                            
+                    <h3>Mirek Sells More $</h3>
+                    <p>@Html.ActionLink("Name?", "Create", "Register", routeValues: null, htmlAttributes: new { id = "registerLink" })</p>
+                </div>
+            </div>
+			
+			
+			// =====================  Buttons   ================================================
+			@using (Html.BeginForm("Create", "Register"))					//<!--HERE S A Simple BUTTON  WORKS!-->
+                {
+                    <input type="submit" value="Miroslaw" />
+                }
+				
+				=======================
+				 <button onclick="location.href='@Url.Action("Register", "Create")';return false;">Mirus</button>    // MUST Check what this one do !
+				========================		
+			
+			@using (Html.BeginForm("Action", "Controller", FormMethod.Get))         // Use bootstrap on the class !!!
+                {
+                    <button type="button"
+                            class="btn btn-primary" 
+                            style="width:50%" alt="Image"
+                            title="Action description">
+                        Button Label
+                    </button>
+                }
+			=======================================  Buttons Works 100% ================================
+			<button type="button" class="btn btn-primary" 
+                style="width:50%" onclick="location.href='@Url.Action("Create", "Company")'">
+				Create YOUR NAME HERE and class to bootstrap
+			</button>
+			
+			
+			
+			
+			// =====================  Html into actionLink , same as 1st method but img-responsive???  ================================================
+			<a href='@Url.Action("Create", "Register")'>
+                    <img src='@Url.Content("~/Images/DSC04392.JPG")' class="img-responsive" style="width:100%" alt="Image"></a>
+			
+			
+			
+			
+			
+			<p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Show Details &raquo;</a></p> 
+			
+			
+			
+			<p>@Html.ActionLink("Register", "Create", "Register", routeValues: null, htmlAttributes: new { @id = "Product_ID" })</p>
+			
+			
+			
+				
+				
+				==============================================
+				<img src="~/Images/DSC04392.JPG" style="height:500px;width:500px;" alt="Image">
+				
+				
+				
+				
+				
+			======================     Display date of week etc.     ================================	
+				
+				DateTime.Now.DayOfWeek
+				@DateTime.Now.Hour
+			
+			
+			
+			======================================     GLYPHICONS     =============================================================
+			
+			http://getbootstrap.com/components/			// List of glyphicons
+			glyphicon glyphicon-log-in					// Glyphicon for login
+			
+			================================     NAVBAR Glyphicon     ============================================================
+			<li>@Html.ActionLink("Log In", "Login", "Account", routeValues: null, htmlAttributes: new { @class = "glyphicon glyphicon-chevron-right" })</li>
+
+			
+			
+			
+			
+			======================     Colours Selection     ================================
+			
+			http://paletton.com/#uid=1000u0kllllaFw0g0qFqFg0w0aF
+			http://www.w3schools.com/colors/colors_picker.asp
+			
+			http://yorktown.cbe.wwu.edu/sandvig/shared/ColorPicker.aspx
+			http://htmlcolorcodes.com/

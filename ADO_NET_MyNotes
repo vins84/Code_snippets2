@@ -1,0 +1,25 @@
+// =======================   ADO.NET   ================================
+
+System.Data in the Reference area is the main driver for SQL Server (in Visual Studio 2015)
+IDbConnection - (ConnectionString-URL, Credentials)   use ..... http://www.connectionstrings.com/
+	|
+	---> DbConnection is an abstract class
+			|
+			---> SqlConnection has an override method which will override DbConnection
+			
+
+
+IDbCommand - (Connection - property, CommandText(SQL) - property)
+
+3 main methods of execution
+	ExecuteNonQuery() – does not expect a return value
+						i.e. use for INSERT, UPDATE, DELETE actions. For exapmle if you update the name this query will tell you how many lines were effected by this change
+	ExecuteScalar() – returns a single value
+						i.e. use where the value returned (single value) is a return code from a stored procedure
+	ExecuteReader() – returns a DataReader
+						i.e. use when expecting data rows (Set of data) to be returned for example SELECT, Populates a DataReader
+						
+						
+						
+IDbDataReader - it reads through the data sequentially from a SELECT statement ( used for when you have connection to the database - Connection Model )
+IDbDataAdapter -   ( used for disconnected access - Disconnected Model )

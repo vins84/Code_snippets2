@@ -1,0 +1,45 @@
+//==========================			CSV to DataTable			=======================
+You’ll need to add a reference to “Microsoft.VisualBasic.FileIO”;
+
+
+public static DataTable GetDataTableFromCsvFile(string csvFilePath, string delimiter = ",")
+        {
+            var csvData = new DataTable();
+            using (var csvReader = new TextFieldParser(csvFilePath))
+            {
+                csvReader.HasFieldsEnclosedInQuotes = true;
+                csvReader.TextFieldType = FieldType.Delimited;
+                csvReader.SetDelimiters(delimiter);
+
+                var colFields = csvReader.ReadFields();
+
+                if (colFields != null)
+                    foreach (var column in colFields)
+                    {
+                        var datecolumn = new DataColumn(column)
+                        {
+                            AllowDBNull = true
+                        };
+                        csvData.Columns.Add(datecolumn);
+                    }
+
+                var rowNumber = 0;
+                while (!csvReader.EndOfData)
+                {
+                    rowNumber++;
+                    var fieldData = csvReader.ReadFields();
+                    try
+                    {
+                        if (fieldData != null)
+                            csvData.Rows.Add(fieldData);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                }
+                csvReader.Dispose();
+            }
+            return csvData;
+        }
+

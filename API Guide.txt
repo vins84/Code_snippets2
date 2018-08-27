@@ -1,0 +1,104 @@
+//===================    How to test API with POSTMAN   =======================
+Steps :-
+1.Install POSTMAN (Go to google chrome app section search for postman)
+2.Create one API 
+3.Select Method as POST
+4.Add This URL https://platform.clickatell.com/messages
+5.Go to header Section and ADD Headers
+6.Add Key = Content-Type , value = application/json
+7.Add Key = Accept , value = application/json
+8.Add Key = Authorization , value = Your API Key
+9.Go to body section 
+10.Select as raw
+
+11.Add this in contant
+
+{ "content": "Test Msg.", "to": ["+919999999999"] }
+
+
+12.Click on send
+
+
+13.You will find response for that.
+
+//===================		Json		=================================
+http://www.newtonsoft.com/json														-		Quick Example how to build Json
+http://www.newtonsoft.com/json/help/html/SerializingJSONFragments.htm				-		Partial Deserialize 
+https://stackoverflow.com/questions/22410511/deserialize-partial-json				-		Partial Deserialize
+https://jsonutils.com/																-		class generator form json
+http://json2csharp.com/																-		class generator json to C#
+http://www.newtonsoft.com/json/help/html/SerializationAttributes.htm				-		Json Documentation
+
+
+//===================    Creating API Tutorials   =======================
+http://restsharp.org/																-		RestSharp
+https://github.com/restsharp/RestSharp/wiki/Other-Usage-Examples					-		RestSharp GitHub
+http://dkdevelopment.net/2010/05/18/dropbox-api-and-restsharp-for-a-c-developer/
+https://www.codeproject.com/articles/659131/understanding-and-implementing-aspnet-webapi
+https://docs.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/tutorial-your-first-web-api
+https://docs.microsoft.com/en-us/aspnet/web-api/overview/older-versions/creating-a-web-api-that-supports-crud-operations
+https://www.sitepoint.com/api-building-and-testing-made-easier-with-postman/															-	Seems to be well explained
+
+http://www.dotnetcurry.com/aspnet/1063/create-rest-service-using-aspnet-webapi															-	Creating REST Service using ASP.NET Web API
+
+https://www.codeproject.com/Tips/497123/How-to-make-REST-requests-with-Csharp															-	How to make REST requests with C#
+https://gist.github.com/gandarez/50040e2f94813d81a15a4baefba6ad4d																		-	RestSharp Creating Jira Issue
+http://stackoverflow.com/questions/10226089/restsharp-simple-complete-example
+
+GET:
+var client = new RestClient("192.168.0.1");
+var request = new RestRequest("api/item/", Method.GET);
+var queryResult = client.Execute<List<Items>>(request).Data;
+
+POST:
+var client = new RestClient("http://192.168.0.1");
+var request = new RestRequest("api/item/", Method.POST);
+request.RequestFormat = DataFormat.Json;
+request.AddBody(new Item
+{
+ItemName = someName,
+Price = 19.99
+});
+client.Execute(request);
+
+DELETE:
+var item = new Item(){//body};
+var client = new RestClient("http://192.168.0.1");
+var request = new RestRequest("api/item/{id}", Method.DELETE);
+request.AddParameter("id", idItem);
+
+client.Execute(request)
+
+
+Changing
+
+RestResponse response = client.Execute(request);
+to
+
+IRestResponse response = client.Execute(request);
+
+https://gist.github.com/gandarez/50040e2f94813d81a15a4baefba6ad4d
+
+
+
+//====================			This defo worked for me using RestSharp				======================
+//var client = new RestClient("https://api.smartsurvey.io/v1");
+//var request = new RestRequest("/surveys", Method.GET);
+////this turns it into a json object
+//request.AddHeader("Accept", "application/json");
+//request.AddQueryParameter("api_token", "iBoN6zpa2hA55s6VNa8q8mxzGVm7YgKS");
+//request.AddQueryParameter("api_token_secret", "4V0O2wnoogdtpLq");
+
+//IRestResponse response = client.Execute(request);
+//var content = response.Content;
+
+//Console.WriteLine(content);
+
+
+
+//========================		Web API		============================
+https://docs.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/using-web-api-with-aspnet-web-forms		-	Using Web API with ASP.NET Web Forms
+http://www.dotnetcurry.com/aspnet/1063/create-rest-service-using-aspnet-webapi
+
+http://www.c-sharpcorner.com/UploadFile/4d9083/how-to-create-web-api-in-Asp-Net-mvc/
+https://www.codeproject.com/Tips/678138/MVC-using-Web-API-and-JQuery-to-GET-or-POST-Data

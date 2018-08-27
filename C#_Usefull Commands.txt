@@ -1,0 +1,59 @@
+//===========================    SPEAK     =================================
+
+using System.Speech.Synthesis;
+
+			SpeechSynthesizer synth = new SpeechSynthesizer();
+            synth.Speak("HEllo Rhiane, Kirten and KQ, How are you??");
+            synth.Speak("I am Miroslaws first speeking computer hahaha");
+
+			
+//======================         SLEEP       ================================
+
+ while(true)
+{
+  send("OK");
+  Thread.Sleep(100); //Sleep for 100 milliseconds
+}
+
+// ===== or 
+
+// Sleep for five seconds
+System.Threading.Thread.Sleep(5000);
+
+
+
+
+
+//======================    DateTime    =============================
+//This adds the simple validation to the date and time......
+
+	public override bool IsValid(object value)      //"value" would be the value of the date
+	{
+		string[] dateFormats = { "d/M/yyyy", "d/MM/yyyy", "dd/MM/yyyy", "d MMM yyyy", "dd/mm/yyyy" };
+
+		DateTime dateTime;
+		
+		var isValid = DateTime.TryParseExact(Convert.ToString(value), 
+			dateFormats, 
+			CultureInfo.CurrentCulture, 
+			DateTimeStyles.None, 
+			out dateTime);
+
+		return (isValid && dateTime > DateTime.Now);        // Checking if the date is in the future.
+	}
+
+	// or if youd like to check the time......
+	
+	public override bool IsValid(object value)      //"value" would be the value of the date
+	{
+		string[] timeFormats = { "HH:mm", "H:mm" };
+		DateTime dateTime;
+
+		var isValid = DateTime.TryParseExact(Convert.ToString(value),
+			timeFormats,
+			CultureInfo.CurrentCulture,
+			DateTimeStyles.None,
+			out dateTime);
+
+		return (isValid);
+	}

@@ -1,0 +1,334 @@
+//======================================			Select2 Example				===============================
+
+
+public class RegisterViewModel
+{
+	[Required]
+	[EmailAddress]
+	[Display(Name = "Email")]
+	public string Email { get; set; }
+
+	[Display(Name = "Customers")]
+	public ICollection<Customer> Customers { get; set; }
+
+	//[Required]
+	//[Phone]
+	//[Display(Name = "Mobile Number")]
+	//public string MobileNumber { get; set; }
+
+	[Required]
+	[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+	[DataType(DataType.Password)]
+	[Display(Name = "Password")]
+	public string Password { get; set; }
+
+	[DataType(DataType.Password)]
+	[Display(Name = "Confirm password")]
+	[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+	public string ConfirmPassword { get; set; }
+
+	[Required]
+	[Display(Name = "Customer")]
+	public string Customer { get; set; }
+}
+
+
+//------------------------		Register using Select2		------------------------------
+@model Adare.SmartApproval.Authentication.Web.Models.RegisterViewModel
+@{
+    ViewBag.Title = "Register";
+}
+
+<h2>@ViewBag.Title.</h2>
+
+@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <h4>Create a new account.</h4>
+    <hr />
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customers, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.HiddenFor(m => m.Customer, new { id = "customer" })
+            <select class="form-control" id="ddlName" data-url='@Url.Action("GetCustomers", "Account")' multiple="multiple">
+                @Html.ValidationMessageFor(s => s.Customer, "", new { @class = "text-danger" })
+                @Html.ValidationSummary()
+            </select>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" class="btn btn-default" value="Register" />
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    var pageSize = 20;
+
+    $('#ddlName').select2({
+        placeholder: "Search for customers",
+        minimumInputLength: 0,
+        ajax: {
+            url: "@Url.Action("GetCustomers", "Account")",
+            type: "GET",
+            dataType: 'json',
+            quietMillis: 50,
+            delay: 250,
+            data: function (param) {
+                return param;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.Results
+                };
+            }
+        }
+    }).on("change",
+        function (e) {
+            var selectMulti = $.map($("#ddlName option:selected"),
+                function (el, i) {
+                    return $(el).text();
+                });
+            $("#customer").val(selectMulti.join(","));
+        });
+</script>
+
+
+//==================================		Controller for RegiterUser			===================================================
+// POST: /Account/Register
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+public async Task<ActionResult> Register(RegisterViewModel model)
+{
+	if (ModelState.IsValid)
+	{
+		using (var context = HttpContext.GetOwinContext().Get<ApplicationDbContext>())
+		{
+			var modelCustomers = model.Customer.Split(',');
+			var customers = context.Customers.Where(c => modelCustomers.Contains(c.Name)).ToList();
+			var user = new ApplicationUser
+			{
+				UserName = model.Email,
+				Email = model.Email,
+				Customers = customers
+			};
+			var result = await UserManager.CreateAsync(user, model.Password);
+			if (result.Succeeded)
+			{
+				var email = new Email(model.Email, "SmartApproval Portal - User Registration ", string.Format(
+						"Thank you for registering with Adare SEC SmartApproval Portal <br /><br />" +
+						"Your password is: <br />{0}" +
+						"<br /> <br /> ** Remember to change the password regularly. **" +
+						"<br /> <br /><br /> <br />Thank you - Adare Web Services. " +
+						"<br /> <br />---" +
+						"<br />This is an automated email. Please do not reply to this email as there will be no response.", model.Password));
+				email.Send();
+
+				return RedirectToAction("Index", "Home", new
+				{
+					Message =
+						string.Format("New user registered: {0}", model.Email)
+				});
+			}
+
+			AddErrors(result);
+		}
+	}
+	// If we got this far, something failed, redisplay form
+	return View(model);
+}
+
+
+
+//-------------------------------		Edit using Select 2			-------------------------------------------------------
+
+<div class="form-group">
+	@Html.LabelFor(m => m.Customers, new { @class = "col-md-2 control-label" })
+	<div class="col-md-10">
+		@Html.HiddenFor(m => m.Customer, new { id = "customer" })
+
+		<select class="form-control" id="ddlName" name="ddlName" data-url='"@Url.Action("GetCustomers", "Account")"' multiple="multiple">
+			@Html.ValidationMessageFor(s => s.Customer, "", new { @class = "text-danger" })
+			@Html.ValidationSummary()
+			@foreach (var customer in Model.Customers)
+			{
+				<option value="@customer.Name" selected="selected">@customer.Name</option>
+			}
+		</select>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+    var pageSize = 20;
+
+    $('#ddlName').select2({
+        placeholder: "Search for customers",
+        minimumInputLength: 0,              //set to 0 to display all the customers from db
+        //tokenSeparators: ['|'],           //these two dont work ??
+        //separator: "|",
+        ajax: {
+            url: "@Url.Action("GetCustomers", "Account")",
+            type: "GET",
+            dataType: 'json',
+            quietMillis: 50,
+            delay: 250,
+            data: function (param) {
+                return param;
+            },
+            processResults: function (data) {
+                //debugger;
+                //return data;
+                //param.page = param.page || 1;
+                return {
+                    results: data.Results
+                };
+            }
+        }
+    }).on("change",
+        function (e) {
+            var selectMulti = $.map($("#ddlName option:selected"),
+                function (el, i) {
+                    return $(el).text();
+                });
+            $("#customer").val(selectMulti.join(","));
+        });
+</script>
+
+
+//==================================		Controller for EditUser			===================================================
+[HttpGet]
+public ActionResult EditUser(string userId, string username, string message = null)
+{
+	if (message != null)
+	{
+		TempData["Message"] = message;
+	}
+
+	using (var _db = new ApplicationDbContext())
+	{
+		var user = UserManager.FindById(userId);
+		if (user == null)
+		{
+			return HttpNotFound();
+		}
+
+		var customer = _db.Users.Where(u => u.Email == username).SelectMany(c => c.Customers).ToList();
+		return View(new RegisterViewModel()
+		{
+			Email = user.Email,
+			Customers = customer
+		});
+	}
+}
+
+[HttpPost]
+public ActionResult EditUser(string username, RegisterViewModel model)
+{
+	using (var context = HttpContext.GetOwinContext().Get<ApplicationDbContext>())
+	{
+		if (username == null)
+		{
+			return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+		}
+		ApplicationUser user = UserManager.FindByName(username);
+		if (user == null)
+		{
+			return HttpNotFound();
+		}
+
+		context.Users.Attach(user);
+		var allUserCustomers = user.Customers.ToList();
+		allUserCustomers.ForEach(s => user.Customers.Remove(s));
+		context.SaveChanges();
+
+		if (model.Customer == null)
+		{
+			return RedirectToAction("EditUser", "Account", new
+			{
+				userId = @user.Id,
+				username = @user.UserName,
+				Message = string.Format("Invalid operation. No customers were assinged to the user: {0}", username)
+			});
+		}
+
+		var modelCustomers = model.Customer.Split(',');
+		var customers = context.Customers.Where(c => modelCustomers.Contains(c.Name)).ToList();
+		user.Customers = customers;
+		user.Email = model.Email;
+		user.UserName = model.Email;
+		context.SaveChanges();
+	}
+
+	return RedirectToAction("Index", "Home", new
+	{
+		Message = string.Format("Customer details were updated for to the user: {0}", username)
+	});
+}
+//============================		Cont...		============================================
+public JsonResult GetCustomers(string term)
+{
+	ApplicationDbContext _db = new ApplicationDbContext();
+
+	List<Customer> listOfCustomers = _db.Customers.Where(c=>c.Name.Contains(term)).ToList();
+	int customersCount = listOfCustomers.Count();
+
+	Select2PagedResult pagedAttendees = CustomersToSelect2Format(listOfCustomers, customersCount);
+
+	return new JsonResult
+	{
+		Data = pagedAttendees,
+		JsonRequestBehavior = JsonRequestBehavior.AllowGet
+	};
+}
+
+private Select2PagedResult CustomersToSelect2Format(List<Customer> customersList, int totalCustomers)
+{
+	Select2PagedResult jsonCustomers = new Select2PagedResult();
+	jsonCustomers.Results = new List<Select2Result>();
+
+	foreach (Customer customer in customersList)
+	{
+		jsonCustomers.Results.Add(new Select2Result { id = customer.CustomerId.ToString(), text = customer.Name });
+	}
+	jsonCustomers.Total = totalCustomers;
+
+	return jsonCustomers;
+}
+//Extra classes to format the results the way the select2 dropdown wants them
+public class Select2PagedResult
+{
+	public int Total { get; set; }
+	public List<Select2Result> Results { get; set; }
+}
+public class Select2Result
+{
+	public string id { get; set; }
+	public string text { get; set; }
+}
+//========================================================================
+
+
+

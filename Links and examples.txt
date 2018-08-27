@@ -1,0 +1,1870 @@
+//=============			DateTime		===================
+http://www.c-sharpcorner.com/UploadFile/mahesh/working-with-datetime-using-C-Sharp/
+
+DateTime dob = new DateTime(2002, 10, 22);  
+Console.WriteLine("ToString: " + dob.ToString());  
+Console.WriteLine("ToBinary: " + dob.ToBinary());  
+Console.WriteLine("ToFileTime: " + dob.ToFileTime());  
+Console.WriteLine("ToLocalTime: " + dob.ToLocalTime());  
+Console.WriteLine("ToLongDateString: " + dob.ToLongDateString());  
+Console.WriteLine("ToLongTimeString: " + dob.ToLongTimeString());  
+Console.WriteLine("ToOADate: " + dob.ToOADate());  
+Console.WriteLine("ToShortDateString: " + dob.ToShortDateString());  
+Console.WriteLine("ToShortTimeString: " + dob.ToShortTimeString());  
+Console.WriteLine("ToUniversalTime: " + dob.ToUniversalTime());
+
+//-------------------------------
+string lastMonth = string.Format("{0:MMMM}", DateTime.Now.AddMonths(-1));
+Console.WriteLine(lastMonth);
+			
+DateTime date = DateTime.Today.AddMonths(-1);
+var emailsBody = String.Format("Hi John, \nPlease find attached report from {0}, \nCheers,", lastMonth);
+Console.WriteLine(emailsBody);
+
+
+System.Globalization.CultureInfo cultureinfo = new System.Globalization.CultureInfo("en-GB");
+CultureInfo.GetCultureInfo("en-GB");
+CultureInfo.GetCultureInfo("en-GB").DateTimeFormat;
+
+DateTime dateFrom = DateTime.ParseExact(from, "MM/dd/yyyy", CultureInfo.CurrentCulture);
+DateTime dateTo = DateTime.ParseExact(to, "MM/dd/yyyy", CultureInfo.CurrentCulture);
+
+
+
+//=============			Directory/Folders		===================
+ var directory = Directory.CreateDirectory(outputFileDirectory + "\\" + "MiroslawTesting");
+var path = Path.GetDirectoryName(outputFilepath);
+Directory.Delete(path, true);
+
+
+
+//=============			Properties	(reflextion c#)		===========================
+----   /*   This defo worked worked for a LINQ query    */
+var outputStreams = entities.OutputStreams.Where(w => w.NavisionJobID == pvo).FirstOrDefault();
+
+//PropertyInfo[] propses = outputStreams.GetType().GetProperties();
+var insert1 = "Insert1Count";
+var propertyIn = outputStreams.GetType().GetProperty(insert1);
+var value = propertyIn.GetValue(outputStreams, null);
+
+
+----  /*   This worked just for properties without values   */
+Type t = typeof(OutputStream);
+PropertyInfo[] props = t.GetProperties();
+List<string> propNames = new List<string>();
+foreach (PropertyInfo prp in props)
+{
+	propNames.Add(prp.Name);
+}
+
+List<string> myList2 = new List<string>();
+foreach (var propNa in propNames.Skip(15).Take(15))
+{
+	myList2.Add(propNa);
+}
+
+
+//=============		? or ?? operator		===========
+TempData["message"] = TempData.Values.Count == 0 ? savedMsg.Trim(',') : savedMsg;
+
+messageOuter = scannedOuterCount == 0 ? string.Format("Number of Outers does NOT match the expected value {0}/1 - {1}", scannedOuterCount, pvo) : messageOuter;
+
+
+//=============			List		===================
+var foo = listOfBarcodes.Select(s=>s.Barcode1).Distinct().ToList();
+var foo2 = listOfBarcodes.Select(s => s.Barcode1).HasDuplicates();
+
+
+
+
+//=============			EF (Entity Framework) Database		===================
+https://msdn.microsoft.com/en-us/library/jj206878(v=vs.113).aspx	-	EF Database First
+http://www.entityframeworktutorial.net/code-first/code-first-from-existing-database.aspx	-	Code First Existing Database
+https://msdn.microsoft.com/en-us/library/jj200620(v=vs.113).aspx	-	Code First Existing Database	
+https://www.tutorialspoint.com/linq/linq_sql.htm
+https://gist.github.com/duraz0rz/4592183	-	With ORM and without ORM
+
+//------------			Migrations		--------------------
+Update-Database -TargetMigration:"name_of_migration"			-			Revert Migration
+
+
+
+//------------			DbContext 		--------------------
+if you have two databases that have the same entity names then you can still use them in the same project 
+but you need to buld custom context for it so EF knows which connection string(context) to use.
+
+1.	Say we have two databases : VWFSReport2 and VWFSReport2Collection. Both those classes have the same column names eg.: ATOMStatu, ATOMStatusReport, ValidationFile.
+2.	Normally you would have that in the dbContext:
+    public class VWFSReport2_dbContext : DbContext
+    {
+        public VWFSReport2_dbContext()
+            : base("name=VWFSReport2_dbContext")
+        {
+        }
+
+        public virtual DbSet<ATOMStatu> ATOMStatus { get; set; }
+        public virtual DbSet<ATOMStatusReport> ATOMStatusReports { get; set; }
+        public virtual DbSet<ValidationFile> ValidationFiles { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+    }
+
+	but this throw an error that the other VWFSReport2Collection is a duplicate !!!
+
+3.	So what you need to do is to build a custom Context like this:
+	By adding VWFSContextFactory you allow EF to determin which connection string to use.
+
+    public class VWFSContextFactory
+    {
+        public static VWFSReport2_dbContext Create()
+        {
+            return new VWFSReport2_dbContext();
+        }
+
+        //public static VWFSReport2_dbContext CreateQuote()
+        //{
+        //    return new VWFSReport2_dbContext();
+        //}
+    }
+
+
+    public class VWFSReport2_dbContext : DbContext
+    {
+        public VWFSReport2_dbContext()
+            : base("name=VWFSReport2_dbContext")
+        {
+        }
+
+        public static VWFSReport2_dbContext Create()
+        {
+            return new VWFSReport2_dbContext();
+        }
+
+
+        public virtual DbSet<ATOMStatu> ATOMStatus { get; set; }
+        public virtual DbSet<ATOMStatusReport> ATOMStatusReports { get; set; }
+        public virtual DbSet<ValidationFile> ValidationFiles { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+    }
+
+
+//=============			Sending Email 		=====================
+//Dont forget that for htis to work you need to add MailService! (MailServiceReference)
+
+public class EmailData
+{
+
+	public void SendEmail(string lastMonth, string outputFilePath)
+	{
+		var subject = string.Format("IPS Barcodes - {0}", lastMonth);
+		
+		var emailsBody = string.Format("Hi John, \n\nPlease find attached report from {0}, \n\nRegards,", lastMonth);
+		
+		using (var client = new MailServiceClient())
+		{
+			client.SendWithSingleAttachment(
+				ConfigurationManager.AppSettings["sender"],
+				ConfigurationManager.AppSettings["recipient"],
+				subject, emailsBody, outputFilePath, false);
+			
+			Console.WriteLine("IPS Barcode report was emailed successfully !");
+		}
+	}
+}
+
+//--------------		WebConfig or AppConfig			---------------
+  <appSettings>
+    <add key="EmailAttachmentDirectory" value="\\172.16.1.6\General_Public\Miroslaw Kaczor\temp"/>
+    <add key="sender" value="miroslaw.kaczor@adaresec.com"/>
+    <add key="recipient" value="john.richards@adaresec.com"/>
+  </appSettings>
+  
+//--------    or
+public void CreateEmail(string outputFilePath, string reportCustomer, string date)
+{
+	var subject = string.Format("{0} Consolidation Report - {1}", reportCustomer, date);
+	var emailsBody = string.Format("Hi, \n\nPlease find attached report from {0}, \n\nRegards,", date);
+	SendEmail(subject, emailsBody, outputFilePath);
+}
+
+public MailServiceClient SendEmail(string subject, string emailsBody, string outputFilePath)
+{
+	using (var client = new MailServiceClient())
+	{
+		client.SendWithSingleAttachment(
+			ConfigurationManager.AppSettings["sender"],
+			ConfigurationManager.AppSettings["recipient"],
+			subject, emailsBody, outputFilePath, false);
+		return client;
+	}
+}
+
+
+//======================			Writing File in C#			==========================
+https://msdn.microsoft.com/en-us/library/8bh11f1k.aspx
+
+
+var newTxtFile = new StringBuilder();
+var headers = "Id, Pick Number, IPS Barcode, Pick Date";
+newTxtFile.AppendLine(headers);
+
+var newline = string.Format("{0}, {1}, {2}, {3}", id, pickNumber, ipsBarcode, item.PickDate);
+newTxtFile.AppendLine(newline);
+File.WriteAllText(outputFilePath, newTxtFile.ToString());
+
+
+
+//----------------------		using StreamWriter			-------------------------------
+using (StreamWriter writer = new StreamWriter(new FileStream(filepath, FileMode.Create, FileAccess.Write)))
+{
+    writer.Write(deletedInfo);
+}
+
+
+//----------		or if it is an Excel file	(Using ClosedXML)	----------------------
+https://github.com/ClosedXML/ClosedXML/wiki/Using-Tables
+https://github.com/ClosedXML/ClosedXML/wiki/Inserting-Data
+https://closedxml.codeplex.com/wikipage?title=Inserting%20Tables
+http://closedxml.codeplex.com/wikipage?title=Basic%20Table&referringTitle=Documentation
+https://closedxml.codeplex.com/wikipage?title=Adding%20DataTable%20as%20Worksheet&referringTitle=Documentation
+https://www.aspsnippets.com/Articles/Read-and-Import-Excel-data-to-DataTable-using-ClosedXml-in-ASPNet-with-C-and-VBNet.aspx
+https://www.codeproject.com/Tips/1107815/Export-an-Excel-File-using-ClosedXML
+http://www.c-sharpcorner.com/UploadFile/dd27d4/import-data-to-excel-insert-a-chart-and-convert-excel-to-pd/					-			Graphs to pdfs
+
+public void CreateExcelFile(List<IQueryable> dataList, string outputFilePath, string time)
+{
+	var workbook = new XLWorkbook();
+	var worksheet = workbook.Worksheets.Add("Experian Report " + "- " + time);
+	var rngTable = worksheet.Range("A1:G1");
+	worksheet.ColumnWidth = 22;
+	worksheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+	var rngHeaders = rngTable.Range("A1:G1");
+	rngHeaders.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+	rngHeaders.Style.Font.Bold = true;
+	rngHeaders.Style.Fill.BackgroundColor = XLColor.FromHtml("#5DADE2");
+
+	worksheet.Cell("A1").Value = "Date / Time";
+	worksheet.Cell("B1").Value = "Billing Centre";
+	worksheet.Cell("C1").Value = "Label";
+	worksheet.Cell("D1").Value = "Job Type";
+	worksheet.Cell("E1").Value = "DPANDPERSONALISATION";
+	worksheet.Cell("F1").Value = "Sheets";
+	worksheet.Cell("G1").Value = "Enclosing";
+
+	var dateTimeRange = worksheet.Range("A2:A999");
+	dateTimeRange.Style.DateFormat.Format = "dd/MM/yyyy";
+
+	for (int i = 0; i < dataList.Count; i++)
+	{
+		worksheet.Cell("A" + (i + 2)).Value = dataList[i];
+	}
+
+	workbook.SaveAs(outputFilePath);
+}  
+
+//----------		or
+
+public static void CreateExcelFile(string reportName, int lineCount, DateTime reportDate, string outputFilePath)
+{
+	if (System.IO.File.Exists(outputFilePath))
+	{
+		XLWorkbook workbook = XLWorkbook.OpenFromTemplate(outputFilePath);
+		IXLWorksheet worksheet = workbook.Worksheet("LaSer Consolidation Report");
+
+		worksheet.Row(worksheet.LastRowUsed().RowNumber() + 1);
+		for (int i = 0; i < 1; i++)
+		{
+			int index = worksheet.LastRowUsed().RowNumber() + 1;
+			worksheet.Cell("A" + (i + index)).Value = reportName;
+			worksheet.Cell("B" + (i + index)).Value = lineCount;
+			worksheet.Cell("C" + (i + index)).Value = reportDate;
+			worksheet.Row(index).InsertRowsBelow(index);
+		}
+		worksheet.Columns().AdjustToContents();
+		var rngLineCount = worksheet.Range("B1:B20");
+		rngLineCount.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+		var dateTimeRange = worksheet.Range("C1:C20");
+		dateTimeRange.Style.DateFormat.Format = "dd/MM/yyyy HH:mm"; 
+		workbook.SaveAs(outputFilePath);
+	}
+
+	if (!System.IO.File.Exists(outputFilePath))
+	{
+		var workbook = new XLWorkbook();
+		var worksheet = workbook.Worksheets.Add("LaSer Consolidation Report");
+		var rngTable = worksheet.Range("A1:C1");
+
+		var rngHeaders = rngTable.Range("A1:C1");
+		rngHeaders.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+		rngHeaders.Style.Font.Bold = true;
+		rngHeaders.Style.Fill.BackgroundColor = XLColor.FromHtml("#5DADE2");
+
+		var rngLineCount = worksheet.Range("B1:B20");
+		rngLineCount.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+		var dateTimeRange = worksheet.Range("C1:C20");
+		dateTimeRange.Style.DateFormat.Format = "dd/MM/yyyy HH:mm"; 
+
+		worksheet.Cell("A1").Value = "Report";
+		worksheet.Cell("B1").Value = "No. of lines";
+		worksheet.Cell("C1").Value = "Report date/time";
+
+		worksheet.Cell("A2").Value = reportName;
+		worksheet.Cell("B2").Value = lineCount;
+		worksheet.Cell("C2").Value = reportDate;
+		worksheet.Columns().AdjustToContents();
+
+		workbook.SaveAs(outputFilePath);
+	}
+}
+	
+//====================================		Reading XML		=====================================	
+Example XML:
+<Batch Job_Name="Xafinity Known" Batch_Type="08" Start_Time="20170830_121144" Envelope_Qty="7" Page_Qty="14" Image_Qty="8" Operator="gabriella  cranston">
+  <Envelope>
+    <Envelope_Number>1</Envelope_Number>
+    <Image_Count>1</Image_Count>
+    <Barcode>Miros1</Barcode>
+    <Output_Folder>XPT</Output_Folder>
+    <Barcode_Part3></Barcode_Part3>
+    <Doc_Type>08</Doc_Type>
+  </Envelope>
+  <Envelope>
+    <Envelope_Number>2</Envelope_Number>
+    <Image_Count>1</Image_Count>
+    <Barcode>Mirek2</Barcode>
+    <Output_Folder>XPT</Output_Folder>
+    <Barcode_Part3></Barcode_Part3>
+    <Doc_Type></Doc_Type>
+  </Envelope>
+</Batch>
+
+
+
+var files = Directory.GetFiles(fileDirectory);
+
+XmlDocument xmlDoc = new XmlDocument();
+foreach (var file in files)
+{
+	var filenameSplit = Path.GetFileNameWithoutExtension(file).Split('_');
+	var batchIdentifier = string.Format("{0}_{1}", filenameSplit[1], filenameSplit[2]);
+
+	xmlDoc.Load(file);
+	XmlNodeList nodeList = xmlDoc.DocumentElement.SelectNodes("/Batch/Envelope");
+
+	foreach (XmlElement node in nodeList)
+	{
+		var envelopeSequence = node.ChildNodes[0].InnerXml;
+		var barcodeNode = node.ChildNodes[2].InnerXml;
+		if (barcodeNode != "")
+		{
+			UpdateDatabase(batchIdentifier, envelopeSequence, barcodeNode);
+		}
+	}
+}
+
+
+
+
+//====================================		Writing to Excel		=====================================
+https://github.com/ClosedXML/ClosedXML
+https://github.com/closedxml/closedxml/wiki/Inserting-Data
+
+https://www.aspsnippets.com/Articles/Read-and-Import-Excel-data-to-DataTable-using-ClosedXml-in-ASPNet-with-C-and-VBNet.aspx
+https://www.codeproject.com/Tips/1107815/Export-an-Excel-File-using-ClosedXML
+http://www.clear-lines.com/blog/post/Write-data-to-an-Excel-worksheet-with-C-fast.aspx
+
+  
+query.ForEach(x =>
+{
+   var i = query.IndexOf(x);
+	worksheet.Cell("A" + (i + 2)).Value = x.Key;
+});
+
+
+foreach (var item in query)
+{
+	var i = query.IndexOf(item);
+	worksheet.Cell("A" + (i + 2)).Value = item.Count();
+	worksheet.Cell("B" + (i + 2)).Value = item.Key;
+
+	listOfStrings.Add(item.Count()+ " " + item.Key);
+
+	//worksheet.Cell(2, 1).InsertData(listOfStrings);                      		 //This works 50%
+	worksheet.Cell(2, 1).Value = listOfStrings[0][0];                            //This works 50%
+}
+
+  
+worksheet.Cell(2, 1).InsertData(query.ToDictionary(x => x.Key, x => x.Count()));
+worksheet.Cell(2, 1).Value = query[i].Count();
+  
+
+//-----------------------------------		These two allow you to display every line from the sqlQuery		------------------
+for (int i = 0; i < query.Count; i++)
+{
+	worksheet.Cell("A" + (i + 2)).Value = query[i].Count();
+	worksheet.Cell("B" + (i + 2)).Value = query[i].Key.Value.ToString("dd/MM/yyyy");				//	These two are the best
+	worksheet.Cell("C" + (i + 2)).Value = query[i].Key.Value.ToString("HH:mm:ss");					//  These two are the best
+}
+
+//-----------------------------------		Append text to Excel		-------------------------------------------------------
+//Method 1 (I like this)
+File.AppendAllLines(
+    "FileAppendAllLines.txt", 
+    new string[] { "line1", "line2", "line3" });
+
+//Method 2
+File.AppendAllText(
+    "FileAppendAllText.txt",
+    "line1" + Environment.NewLine +
+    "line2" + Environment.NewLine +
+    "line3" + Environment.NewLine);
+
+//Method 3
+using (StreamWriter stream = File.AppendText("FileAppendText.txt"))
+{
+    stream.WriteLine("line1");
+    stream.WriteLine("line2");
+    stream.WriteLine("line3");
+}
+
+//Method 4
+using (StreamWriter stream = new StreamWriter("StreamWriter.txt", true))
+{
+    stream.WriteLine("line1");
+    stream.WriteLine("line2");
+    stream.WriteLine("line3");
+}
+
+//Method 5
+using (StreamWriter stream = new FileInfo("FileInfo.txt").AppendText())
+{
+    stream.WriteLine("line1");
+    stream.WriteLine("line2");
+    stream.WriteLine("line3");
+}
+
+
+var address = "this is my address";
+File.AppendAllText(path, Environment.NewLine + address);
+
+
+//-----------------------------------		MemoryStream GetStream(XLWorkbook excelWorkbook)	------------------
+public MemoryStream GetStream(XLWorkbook excelWorkbook)
+        {
+            MemoryStream fs = new MemoryStream();
+            excelWorkbook.SaveAs(fs);
+            fs.Position = 0;
+            return fs;
+        }
+
+//========================                            DataTable                            ============================
+https://datatables.net/reference/api/
+https://datatables.net/                                                                                                                                                                -                              Nice example of dataTable
+https://www.datatables.net/examples/api/row_details.html
+https://jsfiddle.net/karlnicholas/2gc3r7vv/                                                                         -                              Good example expandable datatable
+ 
+<div style="height: 400px; overflow: auto;"> </div>                                        -                              Creates scrollable table
+ 
+ 
+ 
+//====================================		 FileContentResult, FilePathResult, or  FileStreamResult	donwload excel file	==========================
+However, you can also return a FileContentResult, FilePathResult, or  FileStreamResult
+
+FileContentResult : Use this when you have obtained the file as a byte array: 
+return new FileContentResult(byteArray, "image/jpeg");
+
+FilePathResult  : Returns a file on disk using a file path: 
+return new FilePathResult("~/App_Data/Images/" + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet);
+
+FileStreamResult : Sends a stream out to the response. 
+return new FileStreamResult(new FileStream("<your path>", FileMode.Open), "image/jpeg");
+
+
+
+				
+//====================================		Stopwatch		=====================================
+
+Stopwatch stopwatch = Stopwatch.StartNew();
+var test = fileParser.ReadFields().Skip(1);
+int lines = File.ReadAllLines(filePath).Skip(1).Count();
+stopwatch.Stop();
+var t1 = stopwatch.Elapsed;
+
+/* This way is faster but is it effiecient? */
+Stopwatch stopwatch2 = Stopwatch.StartNew();
+string[] linesNo = File.ReadAllLines(filePath);
+int cnt = linesNo.Skip(1).Count();
+stopwatch2.Stop();
+var t2 = stopwatch2.Elapsed;
+			
+
+//=============			String Manipulation			================
+say we have astring "M17110001"
+
+//negative lookahead \d{4}(?!\d) or \d{4}$ 
+var number = Regex.Match(lastJobNumber, @"(.{4})\s*$").ToString();
+var nextNumber = int.Parse(number.ToString());
+++nextNumber;
+jobNumber = string.Format(jobNumber + nextNumber.ToString("0000"));
+
+
+/--------------    non regex method but may cause month to be incremented		------------
+//var test2 = new string(test.Where(char.IsLetter).ToArray());
+//var test3 = new string(test.Where(char.IsNumber).ToArray());
+//var digits = int.Parse(test3);			
+
+
+
+//=============			REGEX		===============
+https://www.icewarp.com/support/online_help/203030104.htm
+http://regexr.com/							-		Great Cheatcodes and Online tester!
+http://regexstorm.net/Tester				-		Online tester!
+http://www.regexlib.com/RETester.aspx		-		Online Tester!
+https://simple-regex.com/examples
+http://www.regexbuddy.com/					-		Might be a good tool
+http://www.rexegg.com/regex-quickstart.html	-		GOOD Quick-Start: Regex Cheat Sheet
+http://www.rexegg.com/regex-csharp.html#threethings
+https://regexone.com/lesson/character_ranges
+https://www.codeproject.com/Articles/9099/The-Minute-Regex-Tutorial
+https://www.icewarp.com/support/online_help/203030104.htm
+http://www.regular-expressions.info/near.html
+http://stackoverflow.com/questions/15025545/regex-to-match-after-specific-characters
+https://www3.ntu.edu.sg/home/ehchua/programming/howto/Regexe.html
+http://derekslager.com/blog/posts/2007/09/a-better-dotnet-regular-expression-tester.ashx
+
+
+[0-9](?=[a-z]) will match any one digit followed by a lowercase letter.
+[0-9](?![a-z]) will match any one digit NOT followed by a lowercase letter. (this is called a negative lookahead)
+(?<=[a-z])[0-9] will match any one digit preceeded by a lowercase letter.
+(?<![a-z])[0-9] will match any one digit NOT preceeded by a lowercase letter.(this is called a negative lookbehind)
+
+([^/\\]+)(\.[^/\\]+?)?
+The first capture group will contain your file's basename and the second capture group will contain the extension, including the '.' character, if it exists.
+You can reference the two capture groups in the 'Replace' section with $1 and $2
+
+Typical file to check 	-	NL0008349090RARR_PLANS_0000000023_NL_NLD_PLAN_F_NETHPL_N_N_MONO.CSV
+
+
+([a-zA-Z0-9\-]+?)		-		Selects all
+(^.*[A-Z]{2,}.*$)		-		Selects all
+[^\w-]					-	 	Selects special character
+
+
+// \\d+(?:)(\\w[A-Z].*?(?=_))(_\\d[0-9]+) that might be better as it doesnt take first two letters into consideration
+// \\d+(?:)(\\d[0-9]+)
+// \d+(?:[A-Z]{1,2})    -   selects digits and suffix
+//(?:[A-Z]{1,2})(\w[A-Z].*?(?=_))(_\d[0-9]+)
+//(\\w[A-Z]*?(?=_))(_\\d[0-9]+)
+//private static readonly string selectAllName = "\\d+(?:)(\\d[0-9]+)"; 
+//private static readonly string selectAllName = "\\d+(?:)(\\w[A-Z].*?(?=_))(_\\d[0-9]+)";
+//private static readonly string selectSuffixPattern = "(?<=[0-9])[A-Z].*?(?=_)";
+//private static readonly string justSuffixCount = "(^[A-Z]{2}).*?";
+
+		
+\d{8}(\w.)
+(^[A-Z]{2})\d+(?:[A-Z]{2})		-	
+(^[A-Z]{2})\\d+(?:[A-Z]{1,2})	-	
+(^[A-Z]{2}).*?(?=[_])			-
+
+(?:[A-Z]{1,2})(\\w[A-Z].*?(?=_))(_\\d[0-9]+); 
+(^[A-Z]{2})\d+(?:[A-Z]{1,2})(\w[A-Z].*?(?=_))(_\d[0-9]+)   		-		NL0008349090RA_PLANS_0000000023_NL_NLD_PLAN_F_NETHPL_N_N_MONO.CSV
+
+(?<=[0-9])[A-Z].			// Selects two letter after digits
+(?<=[0-9])[A-Z].*?(?=_)		// Selects all letters after digits but before "_"
+(^GB).*?(?=[A-Za-z])		// Selects all characters until letters
+(?<=[0-9][A-Z].).*?(?=_)	// Selects two letters before "_"
+
+
+
+
+//====================================		Custom Error for mvc		=====================================
+//To redirect to custom page error you must create a custom page, controller and add the below to the Web.config
+<customErrors mode="On" defaultRedirect="~/ErrorPage/Oops">
+   <error redirect="~/ErrorPage/Oops/404" statusCode="404" />
+   <error redirect="~/ErrorPage/Oops/500" statusCode="500" />
+</customErrors>
+
+//-----------------------------------		Error Controller		-----------------------------------------
+public class ErrorController : Controller
+    {
+        // GET: Error
+        public ActionResult Index(string controllerName, string actionName)
+        {
+            new HandleErrorInfo(new Exception(), controllerName, actionName);
+            return View();
+        }
+    }
+	
+//-----------------------------------		Custom error page		------------------------------------------
+@model HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+}
+
+<h4>Error.</h4>
+<h5>An error occurred while processing your request. It is being investigated by one of our technicians. Thank you for your patience.</h5>
+
+
+
+//===================================		MVC			==================================
+//------------------------		Partial View		------------------------------
+http://dotnetmentors.com/mvc/how-to-use-partial-view-in-mvc-with-example.aspx
+
+https://www.codeproject.com/Articles/698246/ASP-NET-MVC-Special-Views-Partial-View-and-Layout						-			GOOD
+https://www.codeproject.com/Tips/617361/Partial-View-in-ASP-NET-MVC
+
+http://www.tutorialsteacher.com/mvc/partial-view-in-asp.net-mvc														-			GOOD Explanation
+http://www.c-sharpcorner.com/article/uploading-downloading-pdf-files-in-binary-format-using-fileresult-in-asp-net-mvc/
+
+
+//------------------------		Stopping autocomplete		------------------------------
+@*<script>
+            $("input:text, form").attr("autocomplete", "none");
+        </script>*@
+    @*<script>
+        $("input[type='text']").attr("autocomplete", "off");
+    </script>*@
+	
+or.... as an attribute on the html page (apparantely works only for form)
+<form autocomplete="off">
+but you can also try adding it to the text box as shown on W3 website
+@Html.TextBoxFor(m => m.Username, new { id = "username", @class = "form-control", autocomplete = "off" })
+
+
+//------------------------			Error Messages to be displayed			--------------
+
+This one uses enums and ViewBag to show the message
+On the page:
+	<div id="loginFailed" class="alert alert-danger" role="alert" style="display: none">
+		@Html.ValidationMessage("LoginFailed", "Login failed. Please check your credentials.", new { @class = "text-danger" })
+	</div>
+
+Controller:
+	if (result.ChangedPassword != true)
+	{
+		return RedirectToAction("Index", "Home", new { Message = ManageMessageId.ChangePasswordNeeded });
+	}
+
+Model contains this:
+	public enum ManageMessageId
+		{
+			AddPhoneSuccess,
+			ChangePasswordSuccess,
+			ChangePasswordNeeded,
+			SetTwoFactorSuccess,
+			SetPasswordSuccess,
+			RemoveLoginSuccess,
+			RemovePhoneSuccess,
+			Error
+		}
+
+this one had an extra entity in the model and then it s been passed to the page via the controller
+On the page:
+	<div class="row">
+		<div class="form-group">
+			@Html.Label("", @Model.ErrorMessage, new { @class = "alert alert-danger" })
+		</div>
+	</div>
+
+Controller:
+	if (result.StatusCode != HttpStatusCode.OK) return RedirectToAction("LogIn", new { errorMessage = "The verification code was invalid or expired !" });
+
+Model:
+	public string ErrorMessage { get; set; }
+
+//------------------------			Enums	-	gets a name from Enums
+public static string DisplayName(Enum value)
+{
+	Type enumType = value.GetType();
+	//var enumValue = Enum.GetName(enumType, value);
+	MemberInfo[] member = enumType.GetMember(value.ToString());
+
+	object[] attrs = member[0].GetCustomAttributes(typeof(DisplayAttribute), true);
+	var outString = ((DisplayAttribute)attrs[0]).Name;
+
+	if (((DisplayAttribute)attrs[0]).ResourceType != null)
+	{
+		outString = ((DisplayAttribute)attrs[0]).GetName();
+	}
+
+	return outString;
+}
+
+//-=-=-=-= Another way	
+public static string GetDescription(Enum en)
+{
+	Type type = en.GetType();
+	MemberInfo[] memInfo = type.GetMember(en.ToString());
+
+	if (memInfo != null && memInfo.Length > 0)
+	{
+		object[] attrs = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+		if (attrs != null && attrs.Length > 0)
+		{
+			return ((DescriptionAttribute)attrs[0]).Description;
+		}
+	}
+	return en.ToString();
+}
+		
+Then decorate the Enum with description annotations like this:
+public enum OrderStatus
+{
+	[Description("File Read Error")]
+	FileReadError,
+	[Description("Incomplete Data Error")]
+	IncompleteDataError
+}  
+
+Then use the helper function to get the descriptions in your WebAPI Controller method like this:
+Status = EnumHelper.GetDescription(item.Status),
+
+	
+//------------------------			Password		--------------------------
+public string GeneratePassword()
+{
+	/* 1st parameter specifies password lenghts and 2nd number of nonAlphaNumeric characters */
+	var password = System.Web.Security.Membership.GeneratePassword(12, 0);
+	var rnd = new Random(); 
+	password = Regex.Replace(password, @"[^a-zA-Z0-9]", m => rnd.Next(0, 10).ToString());
+	return password;
+}
+
+
+	
+//------------------------			Navbars			--------------------------
+https://bootsnipp.com/snippets/g6lpo							-		Really nice navbar
+	
+
+//------------------------			Glyphicons			--------------------------
+http://getbootstrap.com/components/#glyphicons
+http://glyphicons.bootstrapcheatsheets.com/
+http://fontawesome.io/icons/
+
+<td>
+	<a data-toggle="tooltip" title="Delete" href="@Url.Action("Delete", "Issue", new { key = item.ProjectKey })"><span class="glyphicon glyphicon-trash"></span></a>
+</td>
+
+
+or you can use google materials..... https://material.io/icons/
+<td>
+	<a data-toggle="tooltip" title="Edit details" href="@Url.Action("Edit", "Issue", new {key = item.ProjectKey})">
+		<i class="material-icons">mode_edit</i>
+	</a>
+</td>
+
+	
+	
+//===================================		jQuery		=================================
+1. $(this).siblings();  		// all on level except this
+2. $(this).parent().children(); // all on level including this, use .not(this) to exclude this
+3. $(this).prev(); 				// immediate previous on same level 
+4. $(this).next();  			// immediate next on same level
+5. $(this).prevAll(); 			// all previous on same level 
+6. $(this).nextAll();  			// all next on same level
+
+
+
+
+http://jqueryui.com/datepicker/
+https://www.formget.com/jquery-dialog-form/
+https://www.formget.com/jquery-popup-form/
+http://getbootstrap.com/javascript/
+
+http://jquerytools.github.io/documentation/tooltip/#configuration			-			ToolTip
+https://api.jqueryui.com/tooltip/#option-tooltipClass						-			jQuery ToolTip
+http://jqueryui.com/datepicker/												-			jQuery DatePicker
+https://eonasdan.github.io/bootstrap-datetimepicker/						-			Bootstrap DatePicker
+http://eonasdan.github.io/bootstrap-datetimepicker/Installing/				-			Bootstrap DateTimePicker
+
+
+https://www.airpair.com/js/jquery-ajax-post-tutorial						-			jQuery-ajax-POST tutorial
+
+
+//-------------------------			DatePicker			--------------------------------------------
+$(function () {
+	$('#from').datetimepicker({ format: "DD/MM/YYYY" }).val();
+	$('#to').datetimepicker({ format: "DD/MM/YYYY" }).val();
+
+	$('#downloadButton').click(function () {
+		debugger;
+		var downloadDateFrom = $('#from').datetimepicker({ format: "DD/MM/YYYY" }).val();
+		var downloadDateTo = $('#to').datetimepicker({ format: "DD/MM/YYYY" }).val();
+		if (downloadDateFrom.length !== 0 && downloadDateTo.length !== 0) {
+			var url = '@Html.Raw(Url.Action("DownloadPreKittedReport", "MI"))';
+			url += '?downloadDateFrom=' + downloadDateFrom + '&downloadDateTo=' + downloadDateTo;
+			window.location.href = url;
+			return;
+		}
+
+		alert("Both dates must be selected");
+
+
+		@*window.location = '@Html.Raw(Url.Action("DownloadPreKittedReport", "MI", new { @downloadDateFrom = "2018/01/02", downloadDateTo = "2018/01/01" }))';*@
+
+		
+	});
+});
+
+
+
+//-------------------------			Simple passing date to the controller   	--------------------
+
+<script type="text/javascript">
+    $(function () {
+        $('#to').datetimepicker({ format: "DD/MM/YYYY" });
+        $('#from').datetimepicker({ format: "DD/MM/YYYY" });
+
+        $('#downloadButton').click(function () {
+            var fromDate = $('#from').val();
+            var toDate = $('#to').val();
+            $.ajax({
+                type: "POST",                                           //The type of Method being used (GET, SET, POST, etc.)
+                url: '@Url.Action("GeneratePreKittedMIReport", "MI")', //You can manually enter this as well
+                data: { from: fromDate, to: toDate },                    //Your data to pass to your Controller action
+                success: function () {
+                    alert("Done!");
+                }
+            });
+        });
+    });
+</script>
+
+//------------------------------------------------------------------------------------
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("input:text,form").attr("autocomplete", "off");
+        $("input[type='text']").each(function() {
+            $(this).attr("autocomplete", "off");
+        });
+        $("#username").focus();
+        $(document).keypress(function (e) {
+            var firstStepLogin = $("#loginContent").is(":visible");
+            if (firstStepLogin) {
+                if (((e.which === 13) || (e.keyCode === 13))) {
+                    processLogin();
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        $("#login").click(function () {
+            processLogin();
+        });
+
+        $("#verify").click(function () {
+            processVerify();
+
+        });
+
+        function processVerify() {
+            $('#verify-indicator').show();
+        }
+
+        function processLogin() {
+            $('#login-indicator').show();
+            $("#invalidLogin").hide();
+            $("#codeExpired").hide();
+            $.ajax({
+                type: "POST",
+                url: "/Account/Login",
+                data: {
+                    Username: $("#username").val(),
+                    Password: $("#password").val(),
+                    __RequestVerificationToken: $('input[name=__RequestVerificationToken]').val()
+                }
+            }).success(function (response) {
+                if (response) {
+                    $("#loginContent").hide();
+                    $("#verifyContent").show();
+                    $("#code").focus();
+                } else {
+                    $("#loginFailed").show();
+                    $('#login-indicator').hide();
+                }
+            });
+
+        };
+    });
+</script>
+
+
+
+function processRequest() {
+		$.ajax({
+			type: "PUT",
+			dataType: "json",
+			url: "http://localhost.:8080/rest/api/2/issue/NFP-12",
+			data: {
+				customfield_10027: $("#DateStart").val(),
+				customfield_10028: $("#DateStop").val()
+			},
+			headers: {
+				//"Authorization": "Basic " + btoa("miroslawkaczor" + ":" + "miroslaw84")
+				"Authorization": "Basic" + ("miroslawkaczor", "miroslaw84")
+			}
+		}).success(function (response) {
+			if (response) {
+				$("#winner").show();
+			} else {
+				$("#loser").show();
+			}
+			//alert('Thanks for your comment!');
+		});
+	};
+
+		
+		
+//==============================			Tree View Examples			==================================	
+//--------------------------			Fully Working Examples			----------------------------------
+public static DateTreeViewModel ToTree(ProofViewModel[] files)
+{
+	var listOfFiles =  files.ToList();
+	if (files == null) throw new ArgumentNullException("list");
+
+	var tree = new DateTreeViewModel
+	{
+		Years = files.Select(f=>f.CreationDate.Year).OrderByDescending(f => f).Distinct().Select(y => 
+			new YearViewModel
+			{
+				Year =  y.ToString(), 
+				YearNumber = y,
+				Months = files.Where(f => f.CreationDate.Year == y).GroupBy(x=>x.CreationDate.Month).
+					Select(m => 
+						new MonthViewModel
+						{
+							Month = m.FirstOrDefault().CreationDate.ToString("MMMM"), 
+							YearNumber = m.FirstOrDefault().CreationDate.Year, 
+							MonthNumber = m.FirstOrDefault().CreationDate.Month,
+							Days = files.Where(f => f.CreationDate.Year == y && f.CreationDate.Month == m.Key).
+			Select(f => f.CreationDate.Date).Distinct().ToList()
+						}).OrderByDescending(m=>m.MonthNumber).ToList()
+			}).ToList()
+	};
+	
+			//=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-  	Thats the same querybut broken down  	=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-
+					var tree = new DateTreeViewModel
+					{
+						Years = files.Select(f=>f.CreationDate.Year).OrderByDescending(f => f).Distinct().Select(f => new YearViewModel {Year =  f.ToString(), YearNumber = f}).ToList()
+					};
+
+					foreach (var yearViewModel in tree.Years)
+					{
+						yearViewModel.Months = files.Where(f => f.CreationDate.Year == yearViewModel.YearNumber).GroupBy(x=>x.CreationDate.Month).
+							Select(f => new MonthViewModel {Month = f.FirstOrDefault().CreationDate.ToString("MMMM"), YearNumber = f.FirstOrDefault().CreationDate.Year, MonthNumber = f.FirstOrDefault().CreationDate.Month}).OrderByDescending(m=>m.MonthNumber).ToList();
+					}
+
+					foreach (var monthViewModel in tree.Years.SelectMany(y=>y.Months))
+					{
+						monthViewModel.Days = files.Where(f => f.CreationDate.Year == monthViewModel.YearNumber && f.CreationDate.Month == monthViewModel.MonthNumber).
+							Select(f => f.CreationDate.Date).Distinct().ToList();
+					}
+			//=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-					
+
+	return tree;
+}
+		
+//---------------------------------------			Model			-------------------------------------------		
+public class DateTreeViewModel
+{
+	public List<YearViewModel> Years { get; set; }
+}
+
+public class YearViewModel
+{
+	public int YearNumber { get; set; }
+	public string Year { get; set; }
+	public List<MonthViewModel> Months { get; set; }
+}
+
+public class MonthViewModel
+{
+	public int YearNumber { get; set; }
+	public int MonthNumber { get; set; }
+	public string Month { get; set; }
+	public List<DateTime> Days;
+}		
+
+//---------------------------------------			Html			------------------------------------
+<div class="form-group well">
+            <ul class="collapsed">
+                @foreach (var year in Model.DateTreeView.Years)
+                {
+                    <li class="year">
+                        <span><a id="treeButtonLeft" class="btn btn-default"> <i id="year" class="fa fa-plus-circle"></i></a> <a id="treeButtonRight" class="btn btn-default"> @year.Year </a></span>
+                        <ul class="drawer collapsed">
+                            @foreach (var month in year.Months)
+                            {
+                                <li class="month">
+                                    <span><a id="treeButtonLeftMonth" class="btn btn-default"><i class="fa fa-plus-circle"></i></a> <a id="treeButtonRightMonth" class="btn btn-default"> @month.Month </a></span>
+                                    <ul class="drawer collapsed">
+                                        @foreach (var day in month.Days)
+                                        {
+                                            <li class="day" id="day">
+                                                <a id="treeButtonDay" class="btn btn-default"><i class="fa fa-arrow-circle-right"></i> @day.ToString("dd") </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </div>
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------			jQuery			------------------------------------
+<script>
+    //=========================       TreeView       ===========================
+    $(document).ready(function () {
+        $('.drawer').hide();
+        $('.year-btn').click(function () {
+            var elem = $(this);
+            elem.parent().next().slideToggle('fast',
+                function () {
+                    if ($('.month').is(':visible')) {
+                        elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                    } else {
+                        elem.attr('title', 'Expand Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                    }
+                });
+        });
+
+        $('.month-btn').click(function () {
+            var elem = $(this);
+            elem.parent().next().slideToggle('fast',
+                function () {
+                    if ($('.day').is(':visible')) {
+                        elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                    } else {
+                        elem.attr('title', 'Expand Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                    }
+                });
+        });
+    });
+
+    //=====================     Refresh Data      ================================
+    $('#treeButtonRight, #treeButtonDay').click(function () {
+        $("#SelectedAppCode.btn:first-child").val($(this).text());
+        $("#documents").addClass('loading-mask');
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        $.ajax({
+            type: "POST",
+            url: "/Home/RefreshProofs",
+            data: {
+                __RequestVerificationToken: token,
+                AppCode: $(this).text(),
+                fromDate: '@Model.FromDate',
+                toDate: '@Model.ToDate'
+            }
+        }).success(function (response) {
+            $("#content").html(response);
+            $("#documents").removeClass('loading-mask');
+        });
+    });
+</script>
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+.answer { display:none; }
+.fa_plus:before { content:"+" }
+.fa_minus:before { content:"-" }
+
+
+<div class="question">What is this?
+    <span class="fa fa_plus"></span><div class="answer">It is something</div>
+</div>
+
+
+$(".question").on("click", function(){
+  $(this).find(".answer").toggle(300);
+  $(this).find($(".fa")).toggleClass('fa_plus fa_minus');
+
+});
+//--------------------------------------------------------------		
+<ul id="category-tabs">
+    <li><a href="javascript:void"><i class="fa fa-plus-circle"></i>Category 1</a>
+        <ul>
+            <li><a href="javascript:void">item 1</a></li>
+            <li><a href="javascript:void">item 2</a></li>
+            <li><a href="javascript:void">item 3</a></li>
+        </ul>
+    </li>
+</ul>
+
+$('#category-tabs li a').click(function(){
+    $(this).next('ul').slideToggle('500');
+    $(this).find('i').toggleClass('fa-plus-circle fa-minus-circle')
+});
+//--------------------------------------------------------------		
+this example might need couple of CSS clases to work. I modified too much to know what it was now lol
+
+<div class="tree well">
+    <ul>
+        <li>
+            <span id="parent"><i class="glyphicon glyphicon-folder-close"></i> Parent</span> <a href="">Goes somewhere</a>
+            <ul>
+                <li>
+                    <span><i class="glyphicon glyphicon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
+                    <ul>
+                        <li>
+                            <span><i class="glyphicon glyphicon-minus-sign"></i> Grand Child</span> <a href="">Goes somewhere</a>
+                            <ul>
+                                <li>
+                                    <span><i class="glyphicon glyphicon-minus-sign"></i> Grand Grand Child</span> <a href="">Goes somewhere</a>
+                                    <ul>
+                                        <li>
+                                            <span><i class="icon-leaf"></i> Grand Grand Grand Child</span> <a href="">Goes somewhere</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                    </ul>
+                </li>
+                
+            </ul>
+        </li>
+    </ul>
+</div>
+
+$(function () {
+	$('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+	$('.tree li.parent_li > span').on('click', function (e) {
+
+		//$(".tree li.parent_li > span").on("click",
+		//    function() {
+		//        $(this).find("glyphicon").toggle('500');
+		//        $(this).find($("glyphicon"))
+		//            .toggleClass('glyphicon-folder-close glyphicon-folder-open');
+		//    });
+		//var parent = $(this).parent('li.parent_li').find(' > i');
+
+		var children = $(this).parent('li.parent_li').find(' > ul > li');
+
+
+		if (children.is(":visible")) {
+			children.hide('fast');
+			$(this).attr('title', 'Expand this branch').find(' > i').addClass('glyphicon-plus-sign').removeClass('glyphicon-minus-sign');
+		} else {
+			children.show('fast');
+			$(this).attr('title', 'Collapse this branch').find(' > i').addClass('glyphicon-minus-sign').removeClass('glyphicon-plus-sign');
+		}
+		e.stopPropagation();
+	});
+});
+
+//-----------------------------------		this is the same example but fully working      --------------------------------------------------------
+<div class="form-group well">
+	<ul class="collapsed">
+		<li class="year">
+			<span><a id="treeButtonLeft" class="btn btn-default"> <i id="year" class="fa fa-folder"></i></a> <a id="treeButtonRight" class="btn btn-default"> 2017 </a></span>
+			<ul class="drawer collapsed">
+				<li class="month">
+					<span><a id="treeButtonLeftMonth" class="btn btn-default"><i class="fa fa-plus-circle"></i></a> <a id="treeButtonRightMonth" class="btn btn-default"> Month </a></span>
+					<ul class="drawer collapsed">
+						<li class="day" id="day">
+							<a id="treeButtonDay" class="btn btn-default"><i class="fa fa-file-archive-o"></i> Day1 </a>
+						</li>
+						<li class="day" id="day">
+							<a id="treeButtonDay" class="btn btn-default"><i class="fa fa-file-archive-o"></i> Day2 </a>
+						</li>
+						<li class="day" id="day">
+							<a id="treeButtonDay" class="btn btn-default"><i class="fa fa-file-archive-o"></i> Day3 </a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+</div>
+
+
+//=========================       TreeView       ===========================
+
+https://github.com/jonmiles/bootstrap-treeview
+https://codepen.io/kaslab/pen/rewvEo
+http://gijgo.com/tree/demos/bootstrap-4-treeview
+https://jonmiles.github.io/bootstrap-treeview/                                                                                               -                              Good example - no code
+https://angular-ui-tree.github.io/angular-ui-tree/#/expand-on-hover                                                   -                              Very good angular examples
+https://codepen.io/blascone/pen/EVBYdb                                                                                                         -                             
+http://jsfiddle.net/umutc1/eyf9q87c/                                                                                                                   -                              Nice example (Grand Grand Grand children)
+http://gijgo.com/LiveEdit/Index/bootstrap-treeview.html?component=tree#                                  -                              Nice and simple(This reads from the database and populates)
+http://gijgo.com/tree/demos/bootstrap-4-treeview                                                                                      -                              the same example but with a code
+https://wix.github.io/angular-tree-control/#as-attribute
+https://bootsnipp.com/snippets/l1v06
+ 
+ 
+ 
+ 
+$(document).ready(function () {
+	$('.drawer').hide();
+	$('#treeButtonLeft').click(function () {
+		var elem = $('#treeButtonLeft');
+		elem.parent().next().slideToggle('fast',
+			function () {
+				if ($('.month').is(':visible')) {
+					elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-folder').toggleClass('fa-folder-open');
+				} else {
+					elem.attr('title', 'Expand Me').find('i').toggleClass('fa-folder').toggleClass('fa-folder-open');
+				}
+			});
+	});
+
+	$('#treeButtonLeftMonth').click(function () {
+		var elem = $('#treeButtonLeftMonth');
+		elem.parent().next().slideToggle('fast',
+			function () {
+				if ($('.day').is(':visible')) {
+					elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+				} else {
+					elem.attr('title', 'Expand Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+				}
+			});
+	});
+});
+
+//=====================     Refreshes Data      ================================
+$('#treeButtonRight, #treeButtonRightMonth, #treeButtonDay').click(function () {
+	$("#SelectedAppCode.btn:first-child").val($(this).text());
+	$("#documents").addClass('loading-mask');
+	var token = $('input[name="__RequestVerificationToken"]').val();
+	$.ajax({
+		type: "POST",
+		url: "/Home/RefreshProofs",
+		data: {
+			__RequestVerificationToken: token,
+			AppCode: $(this).text(),
+			fromDate: '@Model.FromDate',
+			toDate: '@Model.ToDate'
+		}
+	}).success(function (response) {
+		$("#content").html(response);
+		$("#documents").removeClass('loading-mask');
+	});
+});
+
+
+<style>
+    .loading-mask {
+        position: relative;
+    }
+
+        .loading-mask::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(359deg);
+        }
+    }
+
+    .loading-mask::after {
+        content: "";
+        position: absolute;
+        border-width: 3px;
+        border-style: solid;
+        border-color: transparent rgb(255, 255, 255) rgb(255, 255, 255);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        top: calc(50% - 12px);
+        left: calc(50% - 12px);
+        animation: 2s linear 0s normal none infinite running spin;
+        filter: drop-shadow(0 0 2 rgba(0, 0, 0, 0.33));
+    }
+
+    .day {     
+        padding: 2px;
+        margin-left: 6px; 
+    }
+
+    .month {
+        padding: 2px;
+        margin-left: 5px;
+    }
+
+    .year {
+        margin-left: -7px;
+    }
+</style>
+
+//-----------------------------------		the same example but working with a model as a partial view      --------------------------------------------------------
+public DateTreeViewModel ToTree(ProofViewModel[] files)
+{
+	var listOfFiles =  files.ToList();
+	if (files == null) throw new ArgumentNullException("list");
+
+	var tree = new DateTreeViewModel
+	{
+		Years = files.Where(f=>f != null).Select(f=>f.CreationDate.Year).OrderByDescending(f => f).Distinct().Select(y => 
+			new YearViewModel
+			{
+				Year =  y.ToString(), 
+				YearNumber = y,
+				Months = files.Where(f => f != null && f.CreationDate.Year == y).GroupBy(x=>x.CreationDate.Month).
+					Select(m => 
+						new MonthViewModel
+						{
+							Month = m.FirstOrDefault().CreationDate.ToString("MMMM"), 
+							YearNumber = m.FirstOrDefault().CreationDate.Year, 
+							MonthNumber = m.FirstOrDefault().CreationDate.Month,
+							Days = files.Where(f => f != null && f.CreationDate.Year == y && f.CreationDate.Month == m.Key).
+						Select(f => f.CreationDate.Date).Distinct().ToList()
+						}).OrderByDescending(m=>m.MonthNumber).ToList()
+			}).ToList()
+	};
+
+
+	return tree;
+}
+
+
+<div id="treeView" class="form-group treewell">
+	@Html.Partial("_TreeView", Model.DateTreeView)
+</div>
+		
+
+<ul class="collapsed">
+    @foreach (var year in Model.Years)
+    {
+        <li class="year">
+            <span>
+                <a class="btn btn-default expandYear-btn" onclick="highlightButton(this)"> <i id="year" class="fa fa-plus-circle"></i></a>
+                <a id="year-btn" class="btn btn-default tree-btn" fromdate="@year.Months.SelectMany(m => m.Days).Min(d=>d)" todate="@year.Months.SelectMany(m => m.Days).Max(d => d)" onclick="highlightButton(this)"> @year.Year </a>
+            </span>
+            <ul class="drawer collapsed">
+                @foreach (var month in year.Months)
+                {
+                    <li class="month">
+                        <span>
+                            <a class="btn btn-default expandMonth-btn"><i class="fa fa-plus-circle"></i></a>
+                            <a id="month-btn" class="btn btn-default tree-btn" fromdate="@month.Days.Min(d => d)" todate="@month.Days.Max(d => d)" onclick="highlightButton(this)"> @month.Month </a>
+                        </span>
+                        <ul id="dayTest" class="drawer collapsed">
+                            @foreach (var day in month.Days)
+                            {
+                                <li class="day" id="day">
+                                    <a class="btn btn-default day-btn" fromdate="@day" todate="@day" onclick="highlightButton(this)"><i class=" fa fa-arrow-circle-right"></i> @day.ToString("dd") </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
+
+//this highlights the buttons
+<script>
+    /*This kind of works*/
+    $(".expandYear-btn, #year-btn").on("click", function () {
+        $(".expandYear-btn").each(function () {
+            $(".expandYear-btn, #year-btn").removeClass('myclass');
+            $(".expandMonth-btn,.tree-btn, .day-btn").removeClass('myclass');
+        });
+        $(this).addClass('myclass');
+        $(this).prev().addClass('myclass');
+        $(this).next().addClass('myclass');
+    });
+
+    $(".expandMonth-btn, #month-btn").on("click", function () {
+        $(".expandMonth-btn").each(function () {
+            $(".expandMonth-btn, #month-btn").removeClass('myclass');
+        });
+        $(this).addClass('myclass');
+        $(this).prev().addClass('myclass');
+        $(this).next().addClass('myclass');
+    });
+
+    $('.day-btn').on("click", function() {
+            $(".day-btn").each(function() {
+                $('.day-btn').removeClass('myclass');
+            });
+            $(this).addClass('myclass');
+        });
+
+    //testing 
+    //$('.day-btn').on("click", function () {
+    //    $(".day-btn").each(function () {
+    //        //$('li.month > span').children('a:parent:first').addClass('myclass');
+    //        //$('li.month span a').addClass('myclass');
+    //        $('li.month > span > a').addClass('myclass');
+    //    });
+    //});
+</script>
+<style>
+    .expandYear-btn.current {
+        color: green;
+    }
+
+    .myclass {
+        color: purple;
+        border: 1px solid lightcoral;
+    }
+    .myclass2 {
+        color: yellow;
+        border: 1px solid yellow;
+    }
+</style>
+
+//-----------------		yet another copy of a tree view for jQuery - this one I think is a final one   		----------------------
+
+//================================				Full Script Copy			=============================================
+<script>
+    $(document).ready(function () {
+        $('.drawer').hide();
+
+        $(document).on("click", ".tree-btn, .day-btn", function () {
+            var elem = $(this);
+            $('#FromDate').val(elem.attr("fromdate"));
+            $('#ToDate').val(elem.attr("todate"));
+
+            RefreshProofs();
+        });
+
+        $(document).on("click", ".expandYear-btn", function () {
+            var elem = $(this);
+            elem.parent().next().slideToggle('fast',
+                function () {
+                    if ($('.month').is(':visible')) {
+                        elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-plus-circle')
+                            .toggleClass('fa-minus-circle');
+                        //$('#yearbtn').css({ "background-color": "purple", "color": "#ffffff" });
+                    } else {
+                        elem.attr('title', 'Expand Me').find('i').toggleClass('fa-plus-circle')
+                            .toggleClass('fa-minus-circle');
+                        //$('#yearbtn').css({ "background-color": "#ffffff", "color": "#333333" });
+                    }
+                });
+        });
+
+        $(document).on("click", ".expandMonth-btn", function () {
+            var elem = $(this);
+            elem.parent().next().slideToggle('fast',
+                function () {
+                    if ($('.day').is(':visible')) {
+                        elem.attr('title', 'Collapse Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                        //$('#monthbtn').css({ "background-color": "purple", "color": "#ffffff" });
+                    } else {
+                        elem.attr('title', 'Expand Me').find('i').toggleClass('fa-plus-circle').toggleClass('fa-minus-circle');
+                        //$('#monthbtn').css({ "background-color": "#ffffff", "color": "#333333" });
+                    }
+                });
+        });
+
+        $(".dropdown-menu li a").click(function () {
+            $(this).parent().parent().parent().find(".btn:first-child")
+                .html("<span class='fa fa-caret-down'></span> " + $(this).text());
+            $(this).parent().parent().parent().find(".btn:first-child").val($(this).text());
+            $("#documents").addClass('loading-mask');
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            RefreshTree();
+            RefreshProofs();
+        });
+
+        setTimeout(function () {
+            window.location.reload(1);
+        },
+            2760000);
+    
+        $(document).on("click", "#contentPager a[href]", function () {
+                $("#documents").addClass('loading-mask');
+                $.ajax({
+                    url: $(this).attr("href"),
+                    type: 'GET',
+                    cache: false,
+                    success: function (result) {
+                        $('#content').html(result);
+                        $("#documents").removeClass('loading-mask');
+                    }
+                });
+                return false;
+            });
+
+        function UpdateStatus(status, proofId) {
+            $.ajax({
+                type: "GET",
+                url: "/Proof/Edit",
+                data: {
+                    proofId: proofId,
+                    status: status
+                }
+            }).complete(function () {
+                RefreshProofs();
+                console.log("Updated PDF status to " + status + "!!");
+            }).error(function (xhr, statusText, error) {
+                console.log("Error: " + error + "\nStatus: " + statusText);
+                console.log(xhr);
+            });
+        };
+
+        var proofsToUpdate = [];
+
+        function UpdateStatusMulti() {
+            $.ajax({
+                type: "POST",
+                url: " /Home/UpdateMultiStatuses",
+                data: {
+                    proofs: proofsToUpdate
+                }
+            }).success(function () {
+                RefreshProofs();
+            });
+        };
+
+        function AddToStatusChangeList(status, proofId) {
+            switch (status) {
+                case 'Accepted':
+                    ToggleSelectionButtonsClasses($('#updateStatusAccepted-' + proofId),
+                        $('#updateStatusRejected-' + proofId),
+                        'accepted',
+                        'disabled');
+                    ProofObjectArray($('#updateStatusRejected-' + proofId), status, proofId);
+                    break;
+                case 'Rejected':
+                    ToggleSelectionButtonsClasses($('#updateStatusRejected-' + proofId),
+                        $('#updateStatusAccepted-' + proofId),
+                        'rejected',
+                        'disabled');
+                    ProofObjectArray($('#updateStatusAccepted-' + proofId), status, proofId);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        function ProofObjectArray(button, status, proofId) {
+            if (button.hasClass('disabled')) {
+                proofsToUpdate.push({ "ProofId": proofId, "ProofStatus": status });
+                console.log(proofsToUpdate);
+            } else {
+                proofsToUpdate.splice(proofsToUpdate.indexOf(proofId));
+                console.log(proofsToUpdate);
+            }
+        };
+
+        function ToggleSelectionButtonsClasses(highlightButton, disabledButton, status, disabled) {
+            highlightButton.toggleClass(status);
+            disabledButton.toggleClass(disabled);
+        };
+
+        function DisableButtons(buttons, disable) {
+            for (i = 0; i < buttons.length; i++) {
+                buttons[i].addClass(disable);
+            }
+        };
+
+        function ResetButtons(buttons, disable) {
+            for (i = 0; i < buttons.length; i++) {
+                buttons[i].removeClass(disable);
+            }
+        };
+
+        function OpenPDF(status, proofId) {
+            var pdfUrl = "/Home/ViewProof?proofId=" + proofId + "#toolbar=0";
+            $("#viewFrame").attr("src", pdfUrl);
+            $('#viewModal').modal({ backdrop: 'static', keyboard: false }, 'show');
+
+            if (status === "NotViewed" || status === "Viewed") {
+                UpdateStatus("Viewed", proofId);
+                ResetButtons([$('#accept'), $('#reject')], 'disabled');
+            } else {
+                DisableButtons([$('#accept'), $('#reject')], 'disabled');
+            }
+
+            $('#accept').on('click', function () {
+                    UpdateStatus("Accepted", proofId);
+                    CloseModal();
+                });
+
+            $('#reject').on('click', function () {
+                    UpdateStatus("Rejected", proofId);
+                    CloseModal();
+                });
+
+            return false;
+        };
+
+        function CloseModal() {
+            $('#viewModal').modal('hide');
+            $("#viewFrame").removeAttr("src");
+            $("#documents").addClass('loading-mask');
+
+            RefreshProofs();
+        };
+
+        function RefreshProofs() {
+            proofsToUpdate = [];
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/RefreshProofs",
+                data: {
+                    __RequestVerificationToken: token,
+                    appCode: $('#SelectedAppCode').val(),
+                    fromDate: $('#FromDate').val(),
+                    toDate: $('#ToDate').val(),
+                    customer: $('#SelectedCustomer').val()
+                }
+            }).success(function (response) {
+                $("#content").html(response);
+                $("#treeView").removeClass('loading-mask');
+            });
+        }
+
+        function RefreshTree() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/RefreshTree",
+                data: {
+                    __RequestVerificationToken: token,
+                    AppCode: $('#SelectedAppCode').val(),
+                    customer: $('#SelectedCustomer').val()
+                }
+            }).success(function (response) {
+                $("#treeView").html(response);
+                $('.drawer').hide();
+            });
+        }
+
+        $(document).on("click", "#contentPager a[href]", function () {
+                $("#documents").addClass('loading-mask');
+                $.ajax({
+                    url: $(this).attr("href"),
+                    type: 'GET',
+                    cache: false,
+                    success: function (result) {
+                        $('#content').html(result);
+                        $("#documents").removeClass('loading-mask');
+                    }
+                });
+                return false;
+        });
+    });
+</script>
+
+
+
+
+//-------------------------			Pass parameters to method jQeury			----------------------------------------------------------------------			
+window.location = '@Html.Raw(Url.Action("DownloadPreKittedReport", "MI", new { @downloadDateFrom = "2018/01/02", downloadDateTo = "2018/01/01" }))';
+
+
+
+
+//==================================================			Password Generator			==========================================================		
+http://techfunda.com/Tools/PasswordGenerator
+http://www.dotnetfunda.com/articles/show/3177/password-generator-in-csharp
+		
+		
+private static string GeneratePassword(int length)
+{
+	List<string> characters = new List<string>(new string[] 
+	{ 
+		"abcdefghijklmnopqrstuvwxyz",
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ", 
+		"/%$-!*\\£"
+	});
+
+	StringBuilder builder = new StringBuilder();
+
+	byte[] randomBytes = new byte[4];
+
+	RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+	rng.GetBytes(randomBytes);
+
+	int seed = BitConverter.ToInt32(randomBytes, 0);
+
+	Random rand = new Random(seed);
+
+	int specialCharsHit = 0;
+	for (int i = 0; i < length; i++)
+	{
+		var character = characters[rand.Next(0, 3)];
+
+		if (specialCharsHit != 5)
+		{
+			if (character == "/%$-!*\\£")
+			{
+				builder.Append(character[rand.Next(character.Length)]);
+				specialCharsHit++;
+			}
+			else
+			{
+				builder.Append(character[rand.Next(character.Length)]);
+			}
+		}
+		else
+		{
+			character = characters[rand.Next(0, 2)];
+			builder.Append(character[rand.Next(character.Length)]);
+		}
+	}
+	
+
+	return builder.ToString();
+}
+
+
+//or even better would be to use Microsofts class to generate it.
+// all you need to do is to add the assembly reference System.Web....and then using System.Web
+
+var pass = System.Web.Security.Membership.GeneratePassword(16, 5);
+Console.WriteLine(pass);		
+
+//This produces even more secure password!
+
+		
+		
+//==================================================			Random Buttons			==========================================================		
+//var issueKey = @(Html.Raw(Json.Encode(Model.Fields.Key)));								-			to pass a item.key or model.key to a controller.
+
+<input type="submit" value="Save" class="btn btn-default" onclick="location.href='@Url.Action("MyAssignedIssues", "Issue")'; return false;" />
+
+@Html.EditorFor(model => model.Key, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })				-			Disables the form input
+
+<span class="savePdfButton"><input type="submit" name="DownloadPdf" value="Save & Generate2222" /></span>
+
+<input title="Save PDF"  href="@Url.Action("DownloadPdf", "Reporting")">
+
+<input type="submit" value="Save" class="btn btn-default" onclick="location.href='@Url.Action("DownloadPdf", "Reporting")'" />
+<input id="YourButton" value="GeneratePassword" class="btn btn-default" onclick="location.href = '@Url.Action("GeneratePassword", "Home")'" ;>
+
+
+//This may not work
+@Html.ActionLink("PVO Check/Print Labels", "PVOCheck", "MI", new { @reportTime = DateTime.TryParse(@Model.StreamDate.Value, out isValid) }, new { @class = "btn btn-info" })
+
+//this one works
+@Html.ActionLink("PVO Check/Print Labels", "PVOCheck", "MI", new { @reportTime = @Model.StreamDate.Value }, new { @class = "btn btn-info" })
+
+
+
+//------------------		pass model to the controller using jquery		------------------------
+<input type="button" class="btn btn-primary" id="label-btn" value="Print labels" />
+
+function print(button) {
+     alert(button);
+			
+var model = '@Html.Raw(Json.Encode(Model.Items.Select(job => new PrintViewModel { NavisionItem = job.NavisionStock, PVONumber = job.NavJobID, Quantity = job.QuantityToPick, SLA = job.SlaDate}).ToList()))';
+var viewModel = JSON.parse(model);
+
+        $('#ticket-btn').on('click',
+            function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("TicketPrint", "MI")',
+                    data: { viewModel: viewModel, choice: button },
+                    cache: true
+                })
+                .done(function (data) {
+                    console.log('success');
+                    $('#partial-view-result').html(data);
+                });
+
+            });
+        $('#label-btn').on('click',
+            function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("LabelPrint", "MI")',
+                    data: { viewModel: viewModel },
+                    cache: true
+                })
+                .done(function (data) {
+                    console.log('success');
+                    $('#partial-view-result').html(data);
+                });
+            });
+    };
+})(jQuery);
+
+
+//==================================================			Security			==========================================================		
+https://www.owasp.org/index.php/.NET_Security_Cheat_Sheet
+
+
+
+
+//==================================================			Password Generation			==================================================
+private static string GeneratePassword(int length)
+{
+	List<string> characters = new List<string>(new string[] 
+	{ 
+		"abcdefghijklmnopqrstuvwxyz",
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ", 
+		"/%$-!*\\£"
+	});
+
+	StringBuilder builder = new StringBuilder();
+
+	byte[] randomBytes = new byte[4];
+
+	RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+	rng.GetBytes(randomBytes);
+
+	int seed = BitConverter.ToInt32(randomBytes, 0);
+
+	Random rand = new Random(seed);
+
+	int specialCharsHit = 0;
+	for (int i = 0; i < length; i++)
+	{
+		var character = characters[rand.Next(0, 3)];
+
+		if (specialCharsHit != 5)
+		{
+			if (character == "/%$-!*\\£")
+			{
+				builder.Append(character[rand.Next(character.Length)]);
+				specialCharsHit++;
+			}
+			else
+			{
+				builder.Append(character[rand.Next(character.Length)]);
+			}
+		}
+		else
+		{
+			character = characters[rand.Next(0, 2)];
+			builder.Append(character[rand.Next(character.Length)]);
+		}
+	}
+	
+
+	return builder.ToString();
+}
+
+
+
+
+
+//==================================================			ALTER DATABASE			==========================================================		
+  ALTER DATABASE [DandGJobManager] SET ENABLE_BROKER with rollback immediate

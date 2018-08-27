@@ -1,0 +1,8 @@
+https://nakupanda.github.io/bootstrap3-dialog/#available-options
+
+http://dojo.telerik.com/OzunU
+
+http://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-alerts.php
+
+http://www.w3schools.com/bootstrap/bootstrap_ref_js_alert.asp
+

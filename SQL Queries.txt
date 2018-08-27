@@ -1,0 +1,109 @@
+//=====================				NHS Last Months Orders			========================
+
+SELECT Max(o.OrderSubmissionDate) AS SubmissionDate, Max(o.OrderSubmissionDate) AS SubmissionDate2, Max(o.ProcessedDate) as ProcessedDate,
+ Max(o.ProcessedDate) as ProcessedDate2, Max(o.XeroxPONumber) AS XeroxPONumber, Max(o.CustomerPONumber) AS CustomerPONumber, ol.[OrderID], Max(d.Dispatched) As Dispatched, Max(d.Dispatched) As Dispatched2 
+  FROM [NHSOrdering].[dbo].[OrderLine] ol 
+  join [NHSOrdering].[dbo].[Order] o on o.OrderId = ol.OrderID
+  join [Warehousing].dbo.PickLine pl on pl.OrderLineID = ol.OrderLineID
+  join [Warehousing].dbo.Box b on b.PickLineId = pl.Id
+  join [Warehousing].dbo.Consignment c on c.Id = b.ConsignmentId
+  join [Warehousing].dbo.Delivery d on d.Id = c.DeliveryId
+  where Dispatched >= '2017-06-01'
+  and Dispatched < '2017-07-01'
+  group by ol.OrderID
+  order by Max(d.Dispatched)   
+  
+ //===========================================================================================
+ 
+ 
+--update [IPSBarcodes].[dbo].[IPSBarcode] set IPSBarcode = 'RE' + IPSBarcode
+  --where IPSBarcode in
+  --(
+  --'067245013',
+  --'06624501X',
+  --'066260019',
+  --'06157001X',
+  --'116130016')
+
+--  delete from ReportInstance
+--  where id in
+--  (
+--18831,
+--18832,
+--18833,
+--18834)
+
+--  delete from ReportInstanceStoredProcParameter
+--    where ReportInstanceID in
+--  (
+--18831,
+--18832,
+--18833,
+--18834)
+
+
+  //====================================		SQL Queries		=====================================
+https://www.linqpad.net/	-	Free Online SQL to LINQ converter
+
+  SELECT *
+  FROM [ATOMScanning].[dbo].[DocumentData] with(nolock)
+  where FieldName like 'NGMFilename' AND DocumentScanId like '14548406%'
+  order by DocumentScanId desc
+
+  -- SELECT *
+  --FROM [ATOMScanning].[dbo].[DocumentData] with(nolock)
+  --where FieldName like 'NGMFilename' and right(left(fieldvalue,12),1) = 'B'
+  
+  SELECT *
+  FROM [ATOMScanning].[dbo].[DocumentData] with(nolock)
+  where FieldName like 'NGMFilename' and right(left(fieldvalue,16),1) = 'P'
+  
+  
+  var query2 = dbContext.ConsignmentLabels
+				.Where(a => a.Freight == true)
+				.SelectMany(c => c.Consignments)
+				.Where(x => x.Delivery.Dispatched >= startDate && x.Delivery
+					.Dispatched < endDate)
+					.GroupBy(d => d.Delivery.Dispatched);
+  
+
+//var query = SELECT COUNT(Consignments.Id), Dispatched FROM ConsignmentLabels 
+//            INNER JOIN Consignments ON ConsignmentLabels.Id = Consignments.ConsignmentLabelId 
+//            INNER JOIN Deliverys ON Consignments.DeliveryId = Deliverys.Id
+//            WHERE (ConsignmentLabels.Freight = 1) and Delivery.Dispatched >= '2017-03-01' and Delivery.Dispatched < '2017-04-01'
+//            group by Dispatched;
+
+
+//var query = dbContext.ConsignmentLabels.Join(dbContext.Consignments, dbContext.ConsignmentLabels.Join(dbContext.Deliveries, dbContext.))
+
+
+
+SELECT        SUBSTRING(MailSortationBarcode.BarcodeValue, 11, 6) AS Expr1, COUNT(*) AS Expr2
+FROM            MailSortationLine WITH (nolock) INNER JOIN
+                         MailSortationFile WITH (nolock) ON MailSortationLine.MailSortationFileID = MailSortationFile.ID INNER JOIN
+                         MailSortationBarcode WITH (nolock) ON MailSortationLine.MailSortationBarcodeID = MailSortationBarcode.ID INNER JOIN
+                         DataFile WITH (nolock) ON MailSortationFile.DataFileID = DataFile.ID
+WHERE         (MailSortationBarcode.BarcodeType = 0) and DataFile.DataFileName like '%260417m1A%'
+GROUP BY SUBSTRING(MailSortationBarcode.BarcodeValue, 11, 6)
+
+
+  
+ 
+ //-----------------------------------		Darryls SQL Query		-------------------------------------
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT [Id]
+      ,[DocumentScanId]
+      ,[FieldName]
+      ,[FieldValue]
+  FROM [ATOMScanning].[dbo].[DocumentData]
+  where documentscanid in
+  (SELECT [Id]
+       FROM [ATOMScanning].[dbo].[DocumentScan]
+  where DocumentClassificationId in 
+  (SELECT [Id]
+  FROM [ATOMScanning].[dbo].[DocumentClassifications]
+  where parentcustomer = 'DandG'))
+  and fieldname = 'NGMFilename' and fieldvalue = 'FR00000876_PLANS_0000000073_FR_FRA_PLAN_F_FRPLN3_N_N_MONO.CSV' 
+  
+  
+  

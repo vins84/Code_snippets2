@@ -1,0 +1,63 @@
+<script>
+    var item = '@Html.Raw(Json.Encode(Model.Select(s => s.Id)))'
+    var viewModel = JSON.parse(item);
+
+    $('#checkout-btn').on('click', function () {
+        var foo = '@Html.Raw(Json.Encode(Model.Select(job => new MamTechnical.Models.Product { Id = job.Id, Name = job.Name}).ToList()))';
+
+        var selectedId = $('#item-btn').val();
+        var test = $(this).val();
+        debugger
+
+        $.ajax({
+            url: '@Url.Action("Details", "Checkouts")',
+            type: 'post',
+            cache: false,
+            async: true,
+            data: { productId: item },
+            success: function (result) {
+                console.log('success')
+                $('.divContent').html(result);
+            }
+        });
+    });
+
+
+    function AddToBasket(item) {
+        var itemId = item.id;
+
+        $.ajax({
+            url: '@Url.Action("AddToOrder", "Orders")',
+            type: 'post',
+            cache: false,
+            async: true,
+            data: { productId: itemId },
+            success: function (result) {
+                alert("Item Id: " + item.id + " Added to Orders")
+                document.location.reload()
+                //$('.divContent').html(result);
+            }
+        });
+    }
+</script>
+
+
+
+ //var foo = "";
+
+                //if (product.IsTaxable == true)
+                //{
+                //    totalTax = productPrice * 0.10;
+                //    totalPrice = totalPrice + totalTax;
+
+                //    if (product.Import == true)
+                //    {
+                //        importTax = productPrice * 0.05;
+                //        totalTax = totalTax + order.ProductTax;
+                //        var total = product.Price + totalTax;
+
+                //        totalPrice = total;
+                //    }
+                //}
+				
+				

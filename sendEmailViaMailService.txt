@@ -1,0 +1,35 @@
+//if VS complains about MSVSMON not running go to ....C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\Remote Debugger\x64\msvsmon.exe  and run it.
+//Should be ok now
+
+
+var sendEmail = new EmailData();
+sendEmail.SendEmail(lastMonth, outputFilePath);
+
+
+public class EmailData
+{
+
+	public void SendEmail(string lastMonth, string outputFilePath)
+	{
+		var subject = string.Format("IPS Barcodes - {0}", lastMonth);
+		
+		var emailsBody = string.Format("Hi John, \n\nPlease find attached report from {0}, \n\nRegards,", lastMonth);
+		
+		using (var client = new MailServiceClient())
+		{
+			client.SendWithSingleAttachment(
+				ConfigurationManager.AppSettings["sender"],
+				ConfigurationManager.AppSettings["recipient"],
+				subject, emailsBody, outputFilePath, false);
+			
+			Console.WriteLine("IPS Barcode report was emailed successfully !");
+		}
+	}
+}
+
+
+<appSettings>
+<add key="EmailAttachmentDirectory" value="\\172.16.1.6\General_Public\Miroslaw Kaczor\temp"/>
+<add key="sender" value="miroslaw.kaczor@adaresec.com"/>
+<add key="recipient" value="john.richards@adaresec.com"/>
+</appSettings>

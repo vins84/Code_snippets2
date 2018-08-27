@@ -1,0 +1,21 @@
+http://www.codeproject.com/Articles/560137/NET-TDD-Test-Driven-Development-by-example-Part
+http://www.codeproject.com/Articles/3781/Test-Driven-Development-in-NET
+
+https://msdn.microsoft.com/en-us/library/ff847525(v=vs.100).aspx
+
+http://www.c-sharpcorner.com/uploadfile/dommym/a-test-driven-development-tutorial-in-C-Sharp-4-0/
+
+
+https://www.quora.com/What-is-the-best-method-s-to-learn-TDD-in-C
+
+https://msdn.microsoft.com/en-us/library/hh212233.aspx
+
+http://nunit.org/index.php?p=quickStart&r=2.6.4
+
+http://nunit.org/index.php?p=quickStart&r=2.6.4			GOOD Example
+https://dzone.com/articles/test-driven-developmenttdd-c
+http://www.4guysfromrolla.com/articles/011905-1.aspx			Thats for the file NUnitTest.zip
+
+
+http://stackoverflow.com/questions/4885789/example-for-how-to-use-the-nunit-and-developing-the-test-cases
+

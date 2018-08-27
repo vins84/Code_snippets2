@@ -1,0 +1,440 @@
+// ---------------------------------------------------------------------------------------------
+// ------------------------------- Test Driven Development Guide -------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// For better visibility, use Notepad++ and go to Language -> C -> C#.
+
+// Since a database is used here, this guide skips regular NUnit testing straight to Mocking.
+// Create a new Unit Test project called UnitTests (under the same solution).
+// Moq is a library external to .Net – we need to install it. This guide employs NUnit Testing.
+// Go to the Package Manager Console, select UnitTests as Default Project and type:
+
+install-package nunit –version 2.6.4
+install-package nunittestadapter
+install-package moq
+install-package entityframework.moqhelper
+
+// Add references to the POCOs and Repo projects.
+// Right-click on the solution. Select Project Build Order, go to Dependencies, select UnitTests. Make sure the repo project is ticked.
+// Right click on the UnitTests project, select Add -> Class. Name it after the repository you are testing and add 'Test' at the end. The repository class doesn't have to exist yet.
+// Do this for every repository class you plan to have.
+// There are a few usings required for the tests to run correctly:
+
+using NUnit.Framework;
+
+// Enables the program to recognise the tests: allows annotations like 'Test', 'SetUp', 'TearDown' and 'TestFixture'
+
+using System.Collections.Generic;
+
+// For using arrays of any kind.
+
+using Moq;
+
+// Enables mocking commands.
+
+using EntityFramework.MoqHelper;
+
+// Enables the mocking of live databases. With this you can add fake data to a fake database.
+// You will also need usings for the POCOs and Repo projects:
+
+using eGamesPOCOs;
+using eGamesRepo;
+
+// Now, we can write tests for each repository. Read about the rules of TDD (or just general information) before starting (go to the 'Additional Info' section). Below, there is an example:
+
+using eGamesPOCOs;
+using eGamesRepo;
+using EntityFramework.MoqHelper;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+
+namespace UnitTests
+{
+    [TestFixture]
+    public class AccountRepoTest
+    {
+        [Test]
+        public void GetAllAccounts_ReturnsAListContainingAllAccountsRegistered_WhenCalled()
+        {
+            // Arrange
+            List<Account> accountList = new List<Account>();
+            Mock<Account> expected = new Mock<Account>();
+            accountList.Add(expected.Object);
+            var mockDbSet = EntityFrameworkMoqHelper.CreateMockForDbSet<Account>()
+                .SetupForQueryOn(accountList);
+            var mockeGamesData = EntityFrameworkMoqHelper.CreateMockForDbContext<eGamesData, Account>(mockDbSet);
+            AccountRepo accountRepo = new AccountRepo(mockeGamesData.Object);
+
+            // Act
+            List<Account> actual = accountRepo.GetAllAccounts();
+
+            // Assert
+            CollectionAssert.Contains(actual, expected.Object);
+        }
+    }
+}
+
+// Now, I will sample a few lines of code and explain what they do.
+
+var mockDbSet = EntityFrameworkMoqHelper.CreateMockForDbSet<Account>()
+
+// This states, create a mock object for an object of type DbSet<Employee>.
+
+    .SetupForQueryOn(accountList);
+	
+// This states that if the mockDbSet needs to be accessed, instead let the list, employeesInDatabase, be accessed instead.
+
+var mockeGamesData = EntityFrameworkMoqHelper.CreateMockForDbContext<eGamesData, Account>(mockDbSet);
+
+// This states that the mock object will mock the DatabasePlatform and the entity (DbSet<Employee>) will point to the mockDbSet.
+// For additional information for tests dealing with editing, removing, etc. go to the 'Additional Info' section -> Mocking Examples.
+
+// Now, create the AccountRepo class and the IAccountRepo interface in the repo project. Write the method.
+// This is an example of the interface for the test above:
+
+using eGamesPOCOs;
+using System.Collections.Generic;
+
+namespace eGamesRepo
+{
+    public interface IAccountRepo
+    {
+        List<Account> GetAllAccounts();
+    }
+}
+
+// And this is an example of a repository class for that test:
+
+using eGamesPOCOs;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace eGamesRepo
+{
+    public class AccountRepo : IAccountRepo
+    {
+        eGamesData context;
+
+        public AccountRepo()
+        {
+            context = new eGamesData();
+        }
+
+        public AccountRepo(eGamesData context)
+        {
+            this.context = context;
+        }
+
+        public List<Account> GetAllAccounts()
+        {
+            return context.Accounts.ToList();
+        }
+    }
+}
+
+// The Linq using enables the use of useful methods like ToList().
+// Make sure the repository inherits the interface like above
+// You need a reference to the context class because it is the link between your repository classes and your database.
+// The first constructor instantiates the default context.
+// The second constructor allows for context to be injected.
+
+// Well Done! You can now move on to making and hosting a Service (the link between the front-end and back-end of the website).
+
+// ---------------------------------------------------------------------------------------------
+// -------------------------------------- Additional Info --------------------------------------
+// ---------------------------------------------------------------------------------------------
+
+// ----- The Qualities of a Good Test ----- //
+1.	Focused – A test should test only one thing
+2.	Easy to read – A test name should be self-documenting and make it clear what the test is doing
+3.	Simple – A test should consist of a sequence only; it should not contain loops and decisions
+4.	Independent – A test should stand alone and not depend on any other test
+5.	Flexible – A test and the code it is testing should be able to be re-used in different projects without having to change anything
+
+// ----- The Five Steps of TDD ----- // 
+1.	Write the test
+2.	Do just enough to make the test compile
+3.	Watch the test fail
+4.	Do just enough to make the test pass
+5.	Refactor and generalise
+
+// ----- Annotations ----- //
+// Annotations are typically used as flags in the C# language.
+[TestFixture] // Must be present as the 1st line after namespace{ in each Test file, NUnit will recognise the test.
+[Test] 		  // Must be present before each test, tells NUnit that a method is a Unit Test.
+[SetUp]		  // Method attribute put before the method declaration, sets up in every test, kicks in before every test.
+[TearDown]    // Similar to [SetUp], but it kicks in after every test.
+[SetUpFixture]// Identifies class as a setup class (useful when you wish to backup data from a database you want emptied).
+
+// ----- A Few Rules about Tests ----- //
+
+// Typically, we want to start with the simplest possible behaviour.
+// Test names should be highly descriptive and usually consist of 3 sections:
+	// 1.	The method that is going to be tested
+	// 2.	The expected outcome
+	// 3.	The initial conditions
+	
+// ----- Some info ----- //
+
+// Make sure the repository classes using 'EntityState' in their methods have this line:
+
+using System.Data.Entity;
+
+// The chevrons denote a Generic.
+// You can think of a List as an array that is able to both grow and shrink in size (something arrays cannot do) and which generally offers more options for data manipulation.
+
+// Mocking frameworks allow developers to write tests that test the behaviour of their application. Behaviour here is defined to mean a method call.
+// We can also use Moq to produce Mock Objects. Mock objects are fake versions of real objects; they are hollow with no defined functionality.
+// Methods inside mock objects perform no logic, if they are defined to return a value, they will simply return the default value for that type; zero for primitives or null for objects.
+// Finally, mocking encourages us to write code that makes use of Dependency Injection. 
+// Dependency Injection is the concept of giving an object all of the associated dependencies it needs to do its job, rather than have it make them itself.
+	
+// ----- Mocking Examples ----- //
+	
+namespace UnitTests
+{
+    [TestFixture]
+    public class EmployeeRepositoryTests
+    {
+        [Test]
+        public void RemoveEmployee_EmployeeObjectInDatabasePlatformWithEmployeeIdMatchingIntPassedIsNoLongerInDatabasePlatform_WhenPassedAnInt()
+        {
+            // Arrange
+            List<Employee> employeesInDatabase = new List<Employee>();
+            int employeeId = 1;
+            Mock<Employee> mockEmployee = new Mock<Employee>();
+            employeesInDatabase.Add(mockEmployee.Object);
+            var mockDbSet = EntityFrameworkMoqHelper.CreateMockForDbSet<Employee>()
+                .SetupForQueryOn(employeesInDatabase)
+                .WithFind(employeesInDatabase, "EmployeeId")
+                .WithRemove(employeesInDatabase);
+            var mockDatabasePlatform = EntityFrameworkMoqHelper.CreateMockForDbContext<DatabasePlatform, Employee>(mockDbSet);
+            EmployeeRepository employeeRepository = new EmployeeRepository(mockDatabasePlatform.Object);
+
+            // Act
+            employeeRepository.RemoveEmployee(employeeId);
+
+            // Assert
+            Assert.IsFalse(employeesInDatabase.Contains(mockEmployee.Object));
+        }
+    }
+}
+
+// Now, I will sample lines of code and explain what they do. If you don't want to read this stuff, skip to 'Method Section' below.
+
+.WithFind(employeesInDatabase, "EmployeeId");
+
+// The ‘WithFind’ states that when search the table with the ‘Find’ method, instead search through the collection, employeesInDatabase, by the property EmployeeId of each Employee object.
+
+.WithRemove(employeesInDatabase);
+
+// The ‘WithRemove’ states which list to use when trying to remove an item. The ‘WithFind’ is also used as the employee to remove needs to be located by EmployeeId.
+
+namespace UnitTests
+{
+    [TestFixture]
+    public class CompanyRepositoryTests
+    {
+        [Test]
+        public void AddCompany_CompaniesInDatabasePlatformContainsCompanyObjectPassedIn_WhenPassedAnEmployeeObject()
+        {
+            // Arrange
+            List<Company> companiesInDatabase = new List<Company>();
+            var mockDbSet = EntityFrameworkMoqHelper.CreateMockForDbSet<Company>()
+                .SetupForQueryOn(companiesInDatabase)
+                .WithAdd(companiesInDatabase);
+            var mockDatabasePlatform = EntityFrameworkMoqHelper.CreateMockForDbContext<DatabasePlatform, Company>(mockDbSet);
+            CompanyRepository companyRepository = new CompanyRepository(mockDatabasePlatform.Object);
+            Mock<Company> expectedResult = new Mock<Company>();
+
+            // Act
+            companyRepository.AddCompany(expectedResult.Object);
+
+            // Assert
+            Assert.IsTrue(mockDbSet.Object.Contains(expectedResult.Object));
+        }
+
+        [Test]
+        public void EditCompany_CompanyObjectInDatabasePlatformWithCompanyIdMatchingCompanyIdOfCompanyObjectPassedInHasSameName_WhenPassedACompanyObject()
+        {
+            // Arrange
+            List<Company> companiesInDatabase = new List<Company>();
+            int companyId = 1;
+            Mock<Company> mockCompany = new Mock<Company>();
+            mockCompany.Object.CompanyId = companyId;
+            mockCompany.Object.CompanyName = "Company name";
+            companiesInDatabase.Add(mockCompany.Object);
+            var mockDbSet = EntityFrameworkMoqHelper.CreateMockForDbSet<Company>()
+                .SetupForQueryOn(companiesInDatabase)
+                .WithAttach(companiesInDatabase, "CompanyId");
+            var mockDatabasePlatform = EntityFrameworkMoqHelper.CreateMockForDbContext<DatabasePlatform, Company>(mockDbSet);
+            CompanyRepository companyRepository = new CompanyRepository(mockDatabasePlatform.Object);
+            string expectedResult = "New company name";
+            Mock<Company> mockUpdatedCompany = new Mock<Company>();
+            mockUpdatedCompany.Object.CompanyId = companyId;
+            mockUpdatedCompany.Object.CompanyName = expectedResult;
+
+            // Act
+            companyRepository.EditCompany(mockUpdatedCompany.Object);
+
+            // Arrange
+            Assert.AreEqual(expectedResult, companiesInDatabase[0].CompanyName);
+        }
+    }
+}
+
+// 	----- Testing a live Database without Mocking [BAD IDEA! AVOID IT LIKE THE PLAGUE] ----- //
+	
+// If you have to test with a live database and you can't or don't want to mock it, you will need a setup class to clear the database of any data while safely storing it away.
+// Use this method only if you are desperate and if you don't care about the data becoming useless afterwards (if you are using linking tables).
+// The class will then restore the original data after the tests are finished.
+// THIS IS NOT RECOMMENDED AS YOU ARE LIKELY TO LOSE YOUR DATA OR HAVE IT MODIFIED AUTOMATICALLY, SO ONLY USE THIS KIND OF SETUP CLASS AS A LAST RESORT
+
+// This example is from another project.
+
+	[SetUpFixture]
+    public class Setup
+    {
+        // MAKE SURE YOU RUN ALL TESTS AT ONCE, OTHERWISE THE SETUP-TEARDOWN WON'T WORK PROPERLY
+
+        DatabaseControl DBControl = new DatabaseControl();
+        List<User> userList = new List<User>();
+        List<ChatRoom> chatRoomList = new List<ChatRoom>();
+
+        // Beginning of all tests
+        [SetUp]
+        public void PreTestSetup()
+        {
+            userList = DBControl.Users.ToList();
+            chatRoomList = DBControl.ChatRooms.ToList();
+            DBControl.ChatRooms.RemoveRange(DBControl.ChatRooms);
+            DBControl.Users.RemoveRange(DBControl.Users);
+            DBControl.SaveChanges();
+        }
+
+        // After all the tests
+        [TearDown]
+        public void RestoreSetup()
+        {
+            DBControl.ChatRooms.RemoveRange(DBControl.ChatRooms);
+            DBControl.Users.RemoveRange(DBControl.Users);
+            DBControl.Users.AddRange(userList);
+            DBControl.ChatRooms.AddRange(chatRoomList);
+            DBControl.SaveChanges(); 
+        }
+    }
+	
+// Now you can write the tests for a live database.
+
+namespace UnitTests
+{
+	[TestFixture]
+    public class AccountRepositoryTests
+    {
+        AccountRepository accountRepository = new AccountRepository();
+        DatabaseControl DBControl = new DatabaseControl();
+
+        // Beginning of each test, empty the database
+        [SetUp]
+        public void PreTestSetup()
+        {
+            DBControl.ChatRoomsTable.RemoveRange(DBControl.ChatRooms);
+            DBControl.Users.RemoveRange(DBControl.Users);
+            DBControl.SaveChanges();
+        }
+
+        [Test]
+        public void GetAllUsers_ReturnsAListOfUsersOfLengthExactlyZero_WhenTheAccountRepositoryHasNoUsersAdded()
+        {
+            //Arrange
+            int expected = 0;
+
+            //Act
+            List<Users> listOfUsers = DBControl.Users.ToList();
+
+            //Assert
+            Assert.AreEqual(expected, listOfUsers.Count());
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// ------------------------------- Bonus Round: Password Hashing -------------------------------
+// ---------------------------------------------------------------------------------------------
+
+using System;
+using System.Security.Cryptography;
+
+namespace ChatSystem
+{
+    internal class PasswordHashing
+    {
+        private const int SaltByteLength = 24;
+        private const int DerivedKeyLength = 24;
+
+        public static string CreatePasswordHash(string password)
+        {
+            var salt = GenerateRandomSalt();
+            var iterationCount = 1200; // number proportional to security level and resources needed to achieve this
+            var hashValue = GenerateHashValue(password, salt, iterationCount);
+            var iterationCountBtyeArr = BitConverter.GetBytes(iterationCount);
+            var valueToSave = new byte[SaltByteLength + DerivedKeyLength + iterationCountBtyeArr.Length];
+            Buffer.BlockCopy(salt, 0, valueToSave, 0, SaltByteLength);
+            Buffer.BlockCopy(hashValue, 0, valueToSave, SaltByteLength, DerivedKeyLength);
+            Buffer.BlockCopy(iterationCountBtyeArr, 0, valueToSave, salt.Length + hashValue.Length, iterationCountBtyeArr.Length);
+            return Convert.ToBase64String(valueToSave);
+        }
+
+        private static byte[] GenerateRandomSalt()
+        {
+            var csprng = new RNGCryptoServiceProvider();
+            var salt = new byte[SaltByteLength];
+            csprng.GetBytes(salt);
+            return salt;
+        }
+
+        private static byte[] GenerateHashValue(string password, byte[] salt, int iterationCount)
+        {
+            byte[] hashValue;
+            var valueToHash = string.IsNullOrEmpty(password) ? string.Empty : password;
+            using (var pbkdf2 = new Rfc2898DeriveBytes(valueToHash, salt, iterationCount))
+            {
+                hashValue = pbkdf2.GetBytes(DerivedKeyLength);
+            }
+            return hashValue;
+        }
+
+        public static bool VerifyPassword(string passwordGuess, string actualSavedHashResults)
+        {
+            //ingredient #1: password salt byte array
+            var salt = new byte[SaltByteLength];
+
+            //ingredient #2: byte array of password
+            var actualPasswordByteArr = new byte[DerivedKeyLength];
+
+            //convert actualSavedHashResults to byte array
+            var actualSavedHashResultsBtyeArr = Convert.FromBase64String(actualSavedHashResults);
+
+            //ingredient #3: iteration count
+            var iterationCountLength = actualSavedHashResultsBtyeArr.Length - (salt.Length + actualPasswordByteArr.Length);
+            var iterationCountByteArr = new byte[iterationCountLength];
+            Buffer.BlockCopy(actualSavedHashResultsBtyeArr, 0, salt, 0, SaltByteLength);
+            Buffer.BlockCopy(actualSavedHashResultsBtyeArr, SaltByteLength, actualPasswordByteArr, 0, actualPasswordByteArr.Length);
+            Buffer.BlockCopy(actualSavedHashResultsBtyeArr, (salt.Length + actualPasswordByteArr.Length), iterationCountByteArr, 0, iterationCountLength);
+            var passwordGuessByteArr = GenerateHashValue(passwordGuess, salt, BitConverter.ToInt32(iterationCountByteArr, 0));
+            return ConstantTimeComparison(passwordGuessByteArr, actualPasswordByteArr);
+        }
+
+        private static bool ConstantTimeComparison(byte[] passwordGuess, byte[] actualPassword)
+        {
+            uint difference = (uint)passwordGuess.Length ^ (uint)actualPassword.Length;
+            for (var i = 0; i < passwordGuess.Length && i < actualPassword.Length; i++)
+            {
+                difference |= (uint)(passwordGuess[i] ^ actualPassword[i]);
+            }
+
+            return difference == 0;
+        }
+    }
+}

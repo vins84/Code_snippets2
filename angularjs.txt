@@ -1,0 +1,726 @@
+//	Angularjs
+//==============================		Links		=====================================
+https://docs.angularjs.org/api/ng/input/input%5Btext%5D			-		Input box
+https://docs.angularjs.org/api/ng/directive/input			-		Input box
+http://www.angularjshub.com/examples/forms/textinputs/			-		Input text box
+
+
+
+
+
+
+//==============================		Buttons		=====================================
+https://material.angularjs.org/latest/demo/button				-		Angular js Materials
+
+@Html.ActionLink("rem", "RemoveKittedJobItem", "MI", new { pvo = item.NavisionJobNumber, stockType = item.StockType, quantity = item.StockQty, model = Model.Select(s => s.PreKittedJobs.FirstOrDefault()).ToList() }, new { @class = "form-horizontal" });
+
+@Html.ActionLink("then", "RemoveKittedJobItem", "MI", new { pvo = item.NavisionJobNumber, stockType = item.StockType, quantity = item.StockQty, model = Model.Select(s => s.PreKittedLogs).ToList() }, new { @class = "form-horizontal" });
+									
+
+//=========================		if statement if value is undefined		=================
+if (typeof searchTerm === "undefined") {
+    $stateParams.searchParam = "gB";
+}
+
+
+//==============================		Active Navbar		=============================
+//-------		html
+<li ng-class="{ active: isActive('/Admin')}" class="subNavbarItem" role="menuitem">
+	<a class="subNavbar-menuItem" href="/BasePage.Admin" ui-sref="BasePage.Admin">Users</a>
+</li>
+
+//-------		controller
+$scope.isActive = function (viewLocation) {
+	return viewLocation === $location.path();
+};
+		
+and dont forget to specify .active in css
+
+
+
+
+
+//=========================		Specifying Date Format in HTML		===============================
+<td>{{jobDetails.jobDetails.dandgSLADate | date:'dd/MM/yyyy'}}</td>
+
+
+
+//=========================		Limiting number of fields to display		=======================
+<a ng-repeat="n in JobEventService.summary.resizeEvents | limitTo: 5">
+	<div class=" list-group-item list-group-item-action SummaryEventItem" style="padding-left: 15px; margin-bottom: 2px">
+		<div style="animation-delay: -100ms;" class="SummaryCounterEventItem {{n.icon}} fa-2x"> </div>
+		<div class="col-md-12 title">
+			<b><span am-time-ago="n.time" /></b><div class="word-break">{{n.eventNotification}}</div><div ng-if="n.filenames.length > 1">
+				<div style="font-size: 10px; font-style: italic; font-weight: 500;">Multiple input files...</div>
+			</div>
+		</div>
+	</div>
+</a>
+
+
+
+ ng-click="SearchJobFiles('searchButton', jobFile)"
+ 
+//=========================		Press Enter Button Event		====================================
+ ng-keyup="$event.keyCode == 13 ? SearchJobFiles('searchButton', jobFile) : null"
+ 
+ 
+
+ 
+ //simple example 	-	check if the $event.keyCode is correct
+
+ng-keyup="$event.keyCode == 13 ? myFunct($event.keyCode) : null"		
+$scope.myFunct = function (keyEvent) {
+	if (keyEvent.which === 13) {
+		debugger;
+		//alert('I am an alert');
+		app.controller();
+
+	}
+}
+
+$scope.SearchJobFiles = function (keyEvent, search) {
+        if (keyEvent.which === 13) {
+            $state.go('BasePage.SearchResults', { searchParam: search });
+        }
+    }
+	
+	
+
+//---------------		Full Search Controller.js		------------------------------
+var SearchController = function ($scope, $timeout, apiService, $stateParams, CategoryService, BrandService) {
+
+    $scope.formats = ['dd-MMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+    $scope.format = $scope.formats[0];
+
+    $scope.openFromDate = function () {
+        $scope.fromDatePopup.opened = true;
+    }
+
+    $scope.fromDatePopup = {
+        opened: false
+    };
+
+    $scope.openToDate = function () {
+        $scope.toDatePopup.opened = true;
+    }
+
+    $scope.toDatePopup = {
+        opened: false
+    };
+
+    $scope.jobFiles = [];
+    $scope.categories = [];
+    $scope.subcategories = [];
+    $scope.brands = [];
+    
+    $scope.selected = {}
+    $scope.selected.categories = [];
+    $scope.selected.brands = [];
+    $scope.selected.subCategories = [];
+    $scope.selected.subcategories = [];
+
+
+    $scope.pageSizeList = [
+        { name: '10', value: '10' },
+        { name: '15', value: '15' },
+        { name: '20', value: '20' },
+        { name: '25', value: '25' },
+        { name: '30', value: '30' }
+    ];
+
+    // Stores either the navbar search param or the search form param for pagination 
+    var searchTerm = '';
+
+    $scope.currentPage;
+    $scope.pageNumber = 1;
+    $scope.numberOfPages;
+    $scope.totalCount;
+
+    $scope.pageSizeBottom = $scope.pageSizeList[0].value;
+    $scope.pageSizeTop = $scope.pageSizeList[0].value;
+
+    function getSearchTerms(action) {
+        debugger;
+        switch (action) {
+            case 'onPageLoad':
+                return {
+                    FileName: $stateParams.searchParam,
+                    PageNumber: $scope.pageNumber,
+                    PageSize: $scope.pageSizeTop,
+                    Categories: $scope.selected.categories.map(function (a) { return a.categoryId; }),
+                    SubCategories: $scope.selected.subcategories.map(function (a) { return a.subcategoryId; }),
+                    Brands: $scope.selected.brands.map(function (a) { return a.brandId; }),
+                    NavbarSearch: true
+                }
+            case 'pageChange':
+                return {
+                    DateTo: $scope.dateTo ? Date.parse($scope.dateTo) : null,
+                    DateFrom: $scope.dateFrom ? Date.parse($scope.dateFrom) : null,
+                    FileName: searchTerm,
+                    PageNumber: $scope.pageNumber,
+                    PageSize: $scope.pageSizeTop,
+                    Categories: $scope.selected.categories.map(function (a) { return a.categoryId; }),
+                    SubCategories: $scope.selected.subcategories.map(function (a) { return a.subcategoryId; }),
+                    Brands: $scope.selected.brands.map(function (a) { return a.brandId; }),
+                    NavbarSearch: false
+                }
+            case 'searchButton':
+                return {
+                    DateTo: $scope.dateTo ? Date.parse($scope.dateTo) : null,
+                    DateFrom: $scope.dateFrom ? Date.parse($scope.dateFrom) : null,
+                    FileName: searchTerm,
+                    PageNumber: $scope.pageNumber,
+                    PageSize: $scope.pageSizeTop,
+                    Categories: $scope.selected.categories.map(function (a) { return a.categoryId; }),
+                    SubCategories: $scope.selected.subcategories.map(function (a) { return a.subcategoryId; }),
+                    Brands: $scope.selected.brands.map(function (a) { return a.brandId; }),
+                    NavbarSearch: false
+                }
+            default:
+                break;
+        }
+    };
+
+    $scope.pageLoadSuccessfully = function (response) {
+        $scope.jobFiles = response.query;
+
+        $scope.numberOfPages = Math.ceil(response.paging.pageCount);
+        $scope.totalCount = response.paging.totalRecordsCount;
+        $('#search-field').val("");
+    };
+
+    function pageLoadFailed(result) {
+    };
+
+    $scope.pageChanged = function (newPageNumber) {
+        $scope.currentPage, $scope.pageNumber = newPageNumber;
+        
+        $scope.SearchJobFiles('pageChange', searchTerm);
+    };
+
+    $scope.pageSizeChange = function () {
+
+    }
+
+    $scope.SearchJobFiles = function (action, jobFile) {
+        switch (action) {
+            case 'onPageLoad':
+                searchTerm = $stateParams.searchParam;
+                //if (typeof searchTerm === "undefined") {
+                //    $stateParams.searchParam = "gB";
+                //}
+                searchTerms = getSearchTerms(action);
+                break;
+            case 'searchButton':
+                $scope.currentPage = 1;
+                searchTerm = $scope.jobFile;
+                searchTerms = getSearchTerms(action);
+                break;
+            case 'pageChange':
+                searchTerms = getSearchTerms(action);
+                break;
+            default:
+                break;
+        }
+            $.ajax({
+                url: '/api/jobs/search',
+                type: 'GET',
+                data: {
+                searchTerms: searchTerms
+            },
+            success: function (result) {
+                $scope.$apply(function () {
+                    $scope.pageLoadSuccessfully(result);
+                });
+            },
+            failure: function (result) {
+                pageLoadFailed(result);
+            }
+        });
+    };
+
+    $('#jobFile').on('change', function () {
+        searchTerm = $scope.jobFile;
+    });
+
+    function loadCategories(pageLoad) {
+        if (pageLoad) {
+            apiService.get('api/categories/get', null,
+            getCategoriesSuccess,
+            getFailures);
+        }
+    }
+
+    function getCategoriesSuccess(result) {
+        $scope.categories = result.data;
+    }
+
+    function loadSubCategories(pageLoad) {
+        if (pageLoad) {
+            apiService.get('api/subcategories/getAll', null,
+            getSubCategoriesSuccess,
+            getFailures);
+        }
+    }
+
+    function getSubCategoriesSuccess(result) {
+        $scope.subCategories = result.data;
+    }
+
+    function loadBrands(pageLoad) {
+        if (pageLoad) {
+            apiService.get('api/brands/get', null,
+            getBrandsSuccess,
+            getFailures);
+        }
+    }
+
+    function getBrandsSuccess(result) {
+        $scope.brands = result.data;
+    }
+
+    function getFailures(result) {
+        console.log(result);
+    }
+
+    //============================================
+    $scope.onCategoryChanged = function (selectedItem) {
+        loadSubcategories();
+        $scope.selected.subcategories = [];
+        $scope.SearchJobFiles('pageChange');
+    }
+
+    function loadSubcategories() {
+        var searchCategoriesViewModel = {categoryIds : $scope.selected.categories.map(function (a) { return a.categoryId; })}
+
+        apiService.post('/api/subcategories/getSubcategories/', JSON.stringify(searchCategoriesViewModel),
+            loadSubcategoriesCompleted,
+            loadSubcategoriesFailed);
+    }
+    function loadSubcategoriesCompleted(result) {
+        $scope.subcategories = result.data;
+        loadJobs();
+    }
+    function loadSubcategoriesFailed() {
+    }
+
+    $scope.onSubcategoryChanged = function (selectedItem) {
+        $scope.SearchJobFiles('pageChange');
+    }
+
+    $scope.onBrandChanged = function (selectedItem) {
+        $scope.SearchJobFiles('pageChange');
+        loadJobs();
+    }
+
+    $scope.onTimeChange = function (selectedItem) {
+        $scope.SearchJobFiles('pageChange');
+    }
+
+    function loadJobs() {
+        var availableJobsFilterViewModel = { jobStatus: 9, brandIds: $scope.selected.brands.map(function (a) { return a.brandId; }), categoryid: $scope.selected.categories.map(function (a) { return a.categoryId; }), subcategoryIds: $scope.selected.subcategories.map(function (a) { return a.subcategoryId; }) };
+        apiService.post('/api/jobs/getFiltered/', JSON.stringify(availableJobsFilterViewModel),
+          loadFilesCompleted,
+          loadFilesFailed);
+    }
+    function loadFilesCompleted(result) {
+        $scope.filesAvailable = result.data;
+    }
+    function loadFilesFailed() {
+
+    }
+
+
+    $scope.CategoryService = CategoryService;
+    $scope.BrandService = BrandService;
+
+    loadBrands(true);
+    loadCategories(true);
+    loadSubCategories(true);
+    loadJobs();
+
+    $scope.SearchJobFiles('onPageLoad');
+};
+
+SearchController.$inject = ['$scope', '$timeout', 'apiService', '$stateParams', 'CategoryService', 'BrandService'];
+
+ //--------------		Controller method		-----------------------
+[Route("search")]
+[HttpGet]
+public HttpResponseMessage JobFileSearchResults(HttpRequestMessage request, [FromUri] SearchTerms searchTerms)
+
+{
+	int skip = (searchTerms.PageNumber - 1) * searchTerms.PageSize;
+	var jobFiles = searchTerms.NavbarSearch ? JobService.GetJobFileNavbarSearchResults(searchTerms.FileName).ToList() :
+											  JobService.GetJobFileAdvancedSearchResults(BuildWhereExpressionFromSearchResults(searchTerms)).ToList();
+
+	int total = jobFiles.Count();
+
+	var jobFileVMs = jobFiles.Select(s => new JobFileViewModel
+	{
+		FileName = s.JobFile.FileName,
+		JobFileId = s.JobFile.JobFileId,
+		Time = s.JobFile.Time,
+		ErrorStatus = s.JobFile.ErrorStatus,
+		ErrorReason = s.JobFile.ErrorReason,
+		ErrorType = s.JobFile.ErrorType,
+		Cancelled = s.JobFile.Cancelled,
+		JobId = s.JobId,
+		CategoryName = s.Category.Name,
+		SubCategoryName = s.Subcategory.Name,
+		BrandName = s.Brand.Name,
+	}).Skip(skip).Take(searchTerms.PageSize).ToList();
+
+
+	var results = new PaginationResults<JobFileViewModel>(jobFileVMs, searchTerms.PageNumber, searchTerms.PageSize, total);
+
+	return CreateHttpResponse(request, () => request.CreateResponse(HttpStatusCode.OK, results));
+}
+ 
+ 
+ //==================		Print whats on the screen			=====================
+  <a href="javascript:window.print()">Click to Print This Page</a>							-		this is the simplest way of prinitng
+  <input id="printdiv" type="submit" value="Print" onclick="printContent('dvmismatch')" />
+  <button ng-click="printToCart();" class="button">Print</button>
+  
+  or sample code (it works but it doesnt take formating of the table):
+  Try This
+
+  
+Javascript
+<script>
+function printContent(el){
+    var restorepage = document.body.innerHTML;
+    var printcontent = document.getElementById(el).innerHTML;
+    document.body.innerHTML = printcontent;
+    window.print();
+    document.body.innerHTML = restorepage;
+}
+</script>
+
+Button
+<input id="printdiv" type="submit" value="Print" onclick="printContent('dvmismatch')" />
+
+This is Partial view div.
+<div id="dvmismatch" style="display :none;">
+        @Html.Partial("_MismatchVendorList", Model)
+    </div>
+  
+  
+//----------------		Print Example		----------------------
+http://embed.plnkr.co/pzIfYGIOt7L8eFSJxWlu/		-	this is the below
+http://jsfiddle.net/U3pVM/35308/
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>AngularJS Print Directive of html templates </title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://code.angularjs.org/1.4.1/angular.js"></script>
+  <script>
+    var app = angular.module('myApp', []);
+
+    app.controller('myCtrl', function($scope) {
+      $scope.printToCart = function(printSectionId) {
+        var innerContents = document.getElementById(printSectionId).innerHTML;
+        var popupWinindow = window.open('', '_blank', 'width=600,height=700,scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+        popupWinindow.document.open();
+        popupWinindow.document.write('<html><head><link rel="stylesheet" type="text/css" href="style.css" /></head><body onload="window.print()">' + innerContents + '</html>');
+        popupWinindow.document.close();
+      }
+    });
+  </script>
+</head>
+
+<body id="printSectionId" ng-app="myApp">
+  <div ng-controller="myCtrl">
+    <h1>AngularJS Print html templates</h1>
+    <form novalidate>
+      First Name:
+      <input type="text" ng-model="firstName" class="tb8">
+      <br>
+      <br> Last Name:
+      <input type="text" ng-model="lastName" class="tb8">
+      <br>
+      <br>
+      <button ng-click="Submit()" class="button">Submit</button>
+      <button ng-click="printToCart('printSectionId')" class="button">Print</button>
+    </form>
+  </div>
+  <div>
+    <br/>
+    <br/><a href="http://www.code-sample.com/2015/07/angularjs-2-forms-validation.html" target="_blank">More About AngularJS Print...</a></div>
+</body>
+</html>
+
+
+//===========================		Event listener not longer compatible/supported   -  use this		================================
+if (document.addEventListener) {
+	document.addEventListener('DOMContentLoaded', completed, false);
+} else if (document.attachEvent) {
+	document.attachEvent('load', completed);
+}
+
+
+
+//===========================		Filtering 		=========================
+thats by writing your own filter
+https://tutorialedge.net/javascript/angularjs/removing-duplicates-from-ng-repeat/#filtering-out-duplicates
+like this:
+by adding it to your app.modules
+		
+.filter('unique',
+		function() {
+			return function(collection, keyname) {
+				var output = [], keys = [];
+				var test = collection;
+				debugger;
+
+				angular.forEach(collection, function(item) {
+						var key = item[keyname];
+						if (keys.indexOf(key) === -1) {
+							keys.push(key);
+							output.push(item);
+						}
+				});
+				debugger;
+				return output;
+			};
+		})
+
+		
+		
+but it is easier to justs install bower packadge angular-filter
+https://github.com/a8m/angular-filter
+
+(1) You can install angular-filter using 4 different methods:
+
+clone & build this repository
+via Bower: by running $ bower install angular-filter from your terminal
+via npm: by running $ npm install angular-filter from your terminal
+via cdnjs http://www.cdnjs.com/libraries/angular-filter
+(2) Include angular-filter.js (or angular-filter.min.js) in your index.html, after including Angular itself.
+
+(3) Add 'angular.filter' to your main module's list of dependencies.
+
+<body>
+    ...
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.min.js"></script>
+    <script src="bower_components/angular-filter/dist/angular-filter.min.js"></script>
+    ...
+    <script>
+        var myApp = angular.module('myApp', ['angular.filter']);
+
+    </script>
+</body>
+
+
+and then in the view :
+
+ <ui-select id="inputFormType" multiple ng-model="selected.formTypes" theme="bootstrap" sortable="true" close-on-select="false" on-select="onFormTypeChanged($item)" on-remove="onFormTypeChanged($item)" style="width: 150%;">
+	<ui-select-match placeholder="Select Form Type...">
+		<span>{{ jIFLookups.formType.name }}</span>
+	</ui-select-match>
+	<ui-select-choices repeat="form in jIFLookups | unique: 'formType.name'">
+		{{ form.formType.name }}
+	</ui-select-choices>
+</ui-select>
+
+
+
+//=====================================			Downloading Excel File			========================================================
+
+<button class="btn btn-md" type="submit" ng-click="downloadExcel()"><i class="fa fa-download"></i> Download </button>
+
+
+$scope.downloadExcel = function () {
+	var selectedMrdfLinesFilter = {
+		fileHeaderId: $scope.fileHeaderId,
+		recordsFrom: $scope.recordsFrom,
+		recordsTo: $scope.recordsTo
+	};
+	apiService.download('/api/mrdfline/Download/?headerId=' + $scope.fileHeaderId + '&recordsFrom=' + $scope.recordsFrom + '&recordsTo=' + $scope.recordsTo,
+	 null,
+	 //JSON.stringify(selectedMrdfLinesFilter),
+	 donwloadFileCompleted,
+	 downloadFileFailed);
+}
+
+function donwloadFileCompleted() {
+}
+function downloadFileFailed() {
+}
+	
+
+
+[HttpGet]
+public HttpResponseMessage Download(HttpRequestMessage request, [FromUri] int headerId, [FromUri] int? recordsFrom, [FromUri] int? recordsTo)
+{
+	var getMrdfLines = _mrdfLineService.GetMrdfLinesByFileHeader(headerId);
+	//var mrdfLinesCount = getMrdfLines.Count();
+	var fileSourceName = getMrdfLines.FirstOrDefault().SourceId.Trim();
+	var workbook = new XLWorkbook();
+
+	//if (recordsFrom == null && recordsTo == null)
+	//{
+	//    WriteToJifLookUpExcelWorkbook(getMrdfLines, workbook, fileSourceName);
+	//}
+	//if (recordsFrom > 0 && recordsTo == null)
+	//{
+	//    var range = getMrdfLines.Where(w => w.Num >= recordsFrom);
+	//    var rangeCount = getMrdfLines.Count();
+	//    fileSourceName = string.Format("{0} from {1} to {2}", fileSourceName, recordsFrom, rangeCount);
+	//    WriteToJifLookUpExcelWorkbook(range, workbook, fileSourceName);
+	//}
+	//if (recordsFrom == null && recordsTo > 0)
+	//{
+	//    var range = getMrdfLines.Where(w => w.Num <= recordsTo);
+	//    fileSourceName = string.Format("{0} from {1} to {2}", fileSourceName, 0, recordsTo);
+	//    WriteToJifLookUpExcelWorkbook(range, workbook, fileSourceName);
+	//}
+	//if (recordsFrom > 0 && recordsTo > 0)
+	//{
+	//    var range = getMrdfLines.Where(w => w.Num >= recordsFrom && w.Num <= recordsTo);
+	//    fileSourceName = string.Format("{0} from {1} to {2}", fileSourceName, recordsFrom, recordsTo);
+	//    WriteToJifLookUpExcelWorkbook(range, workbook, fileSourceName);
+	//}
+	//if (recordsFrom == 0 || recordsTo == 0 || recordsFrom > mrdfLinesCount || recordsTo > mrdfLinesCount)
+	//{
+	//    throw new Exception();
+	//}
+
+	if (recordsFrom == null && recordsTo == null)
+	{
+		WriteToJifLookUpExcelWorkbook(getMrdfLines, workbook, fileSourceName);
+	}
+
+	if (recordsTo == null)
+	{
+		var rangeCount = getMrdfLines.Count();
+		recordsTo = rangeCount;
+	}
+	if (recordsFrom == null)
+	{
+		recordsFrom = 0;
+	}
+
+	var range = getMrdfLines.Where(w => w.Num >= recordsFrom && w.Num <= recordsTo);
+	fileSourceName = string.Format("{0} from {1} to {2}", fileSourceName, recordsFrom, recordsTo);
+	WriteToJifLookUpExcelWorkbook(range, workbook, fileSourceName);
+
+	var result = request.CreateResponse(HttpStatusCode.OK);
+	var stream = GetStream(workbook);
+	
+	result.Content = new StreamContent(stream);
+	result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+	{
+		FileName = fileSourceName
+	};
+
+	result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/excel");
+	result.Content.Headers.ContentLength = stream.Length;
+
+	return result;
+}
+
+
+public MemoryStream GetStream(XLWorkbook excelWorkbook)
+{
+	var fs = new MemoryStream();
+	excelWorkbook.SaveAs(fs);
+	fs.Position = 0;
+	return fs;
+}
+
+
+private static void WriteToJifLookUpExcelWorkbook(IEnumerable<MrdfLine> query, XLWorkbook workbook, string fileSourceName)
+{
+	var worksheetName = string.Format("{0}", fileSourceName);
+	var worksheet = workbook.Worksheets.Add(worksheetName);
+	var rngTable = worksheet.Range("A1:O1");
+	worksheet.ColumnWidth = 24;
+	worksheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+	IEnumerable<ExcelViewModel> mrdfLines = query.Select(s => new ExcelViewModel
+	{
+		Num = s.Num,
+		PieceId = s.PieceId,
+		SourceId = s.SourceId.TrimEnd(),
+		InsertFeeder = s.InsertFeeder,
+		QualityAudit = s.QualityAudit ? "Yes" : "No",
+		ChangeInMailSort = s.ChangeInMailSort ? "Yes" : "No",
+		StartPageOffset = s.StartPageOffset,
+		PageCountOffset = s.PageCountOffset,
+		CmcTimeStamp = s.CmcTimeStamp.ToString() ?? string.Empty,
+		CmcOperator = s.CmcOperator,
+		CmcStatus = s.CmcStatus,
+		CmcStatusCode = s.CmcStatusCode,
+		CmcLine = s.CmcLine,
+		CmcPcAddStatusCode = s.CmcPcAddStatusCode ?? 0,
+		CmcFeedingStatus = s.CmcFeedingStatus
+	}).ToList();
+
+
+	var table = new DataTable();
+
+	#region Columns
+	table.Columns.Add("Num", typeof(int));
+	table.Columns.Add("PieceId", typeof(int));
+	table.Columns.Add("SourceId", typeof(string));
+	table.Columns.Add("Insert Feeder", typeof(string));
+	table.Columns.Add("QualityAudit", typeof(string));
+	table.Columns.Add("ChangeInMailSort", typeof(string));
+	table.Columns.Add("StartPageOffset", typeof(int));
+	table.Columns.Add("PageCountOffset", typeof(int));
+	table.Columns.Add("CmcTimeStamp", typeof(string));
+	table.Columns.Add("CmcOperator", typeof(string));
+	table.Columns.Add("CmcStatus", typeof(string));
+	table.Columns.Add("CmcStatusCode", typeof(string));
+	table.Columns.Add("CmcLine", typeof(string));
+	table.Columns.Add("CmcPcAddStatusCode", typeof(int));
+	table.Columns.Add("CmcFeedingStatus", typeof(string));
+	#endregion
+
+	foreach (var mrdfLine in mrdfLines)
+	{
+		string pieceId = mrdfLine.PieceId;
+		pieceId = pieceId.TrimStart('0');
+		pieceId = pieceId.Length > 0 ? pieceId : "0";
+
+		table.Rows.Add(
+			mrdfLine.Num,
+			pieceId,
+			mrdfLine.SourceId,
+			mrdfLine.InsertFeeder,
+			mrdfLine.QualityAudit,
+			mrdfLine.ChangeInMailSort,
+			mrdfLine.StartPageOffset,
+			mrdfLine.PageCountOffset,
+			mrdfLine.CmcTimeStamp ?? string.Empty,
+			mrdfLine.CmcOperator,
+			mrdfLine.CmcStatus,
+			mrdfLine.CmcStatusCode,
+			mrdfLine.CmcLine,
+			mrdfLine.CmcPcAddStatusCode ?? null,
+			mrdfLine.CmcFeedingStatus);
+	}
+	// Auto Set Column width
+	worksheet.Cell(1, 1).InsertTable(table);
+	worksheet.Columns(1, 15).AdjustToContents();
+
+	var rngHeaders = rngTable.Range("A1:O1");
+	rngHeaders.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+	rngHeaders.Style.Font.Bold = true;
+	rngHeaders.Style.Fill.BackgroundColor = XLColor.FromHtml("#8856A3");
+
+	//var originaLocation = Path.GetDirectoryName(MrdfLinesTemplatePath);
+	//var newfilepath = string.Format(originaLocation + "\\" + fileSourceName + ".xlsx");
+	//workbook.SaveAs(newfilepath);
+}
+
+
+
+

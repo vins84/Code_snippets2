@@ -1,0 +1,97 @@
+    function matchStart(term, text) {
+        if (text.toUpperCase().indexOf(term.toUpperCase()) === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    function formatRepoSelection(repo) {
+        return repo.full_name || repo.text;
+    }
+
+
+    $('#ddlName').select2({
+        //matcher: oldMatcher(matchStart),
+        placeholder: "Search for customers",
+        //minimumInputLength: 0, //set to 0 to display all the customers from db
+        //tokenSeparators: ['|'],           //these two dont work ??
+        //separator: "|",
+        ajax: {
+            url: "@Url.Action("GetCustomers", "Account")",
+            type: "GET",
+            dataType: 'json',
+            quietMillis: 50,
+            delay: 250,
+            data: function(params) {
+                return {
+                    term: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function(data, params) {
+                // parse the results into the format expected by Select2
+                // since we are using custom formatting functions we do not need to
+                // alter the remote JSON data, except to indicate that infinite
+                // scrolling can be used
+                params.page = params.page || 1;
+                return {
+                    results: data,
+                    //results: data.items
+                    pagination: {
+                        more: (params.page * 30) < data
+                    }
+                };
+            },
+            cache: true
+            //cache: true
+            //matcher: function(term, text, option) {
+            //    return text.toUpperCase().indexOf(term.toUpperCase()) >= 0 ||
+            //        option.val().toUpperCase().indexOf(term.toUpperCase()) >= 0;
+            //}
+            //escapeMarkup: function (markup) { return markup; },
+            //minimumInputLength: 1
+            //templateResult: formatRepo,
+            //templateSelection: formatRepoSelection
+        }).on("change", function (e) {
+            var selectMulti = $.map($("#ddlName option:selected"), function (el, i) {
+                return $(el).text();
+            });
+            $("#customer").val(selectMulti.join(","));
+        });
+		
+		
+		//=========================		Old Working Method		========================================
+		<script type="text/javascript">
+            $('#ddlName').select2({
+                placeholder: "Search for customers",
+                minimumInputLength: 0, //set to 0 to display all the customers from db
+                //tokenSeparators: ['|'],           //these two dont work ??
+                //separator: "|",
+                ajax: {
+                    url: "@Url.Action("GetCustomers", "Account")",
+                    type: "GET",
+                    dataType: 'json',
+                    quietMillis: 50,
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            }).on("change",
+                function (e) {
+                    var selectMulti = $.map($("#ddlName option:selected"),
+                        function (el, i) {
+                            return $(el).text();
+                        });
+                    $("#customer").val(selectMulti.join(","));
+                });
+</script>

@@ -1,0 +1,88 @@
+//===============================			Encrypting App.config or Web.config			===============================
+
+//--------------		** NOTE	**		--------------
+For using RsaProtectedConfigurationProvider you need to launch your Command prompt or Visual Studio as an Administrator.
+
+For DataProtectionConfigurationProvider it is not required to run under Admin rights.
+
+
+
+http://www.dreamincode.net/forums/topic/236688-encryptingdecrypting-your-appconfig-or-webconfig/		-		This is a working example
+https://blogs.msdn.microsoft.com/gaurav/2013/12/15/encrypting-section-of-config-file-using-aspnet_regiis-exe-the-configuration-for-physical-path-web-config-cannot-be-opened/
+https://msdn.microsoft.com/en-us/library/k6h9cz8h(v=vs.80).aspx											-		MSDN Documentation
+
+//===============================			Example			===============================
+What's needed
+
+The path to your App.config or Web.config file
+aspnet_regiis.exe
+
+Aspnet_regiis.exe's Location
+
+There are two IIS Registration Tools that ship with the .NET Framework; one for 32-bit systems and one for 64-bit systems.
+
+[ 32-bit Systems ]
+The aspnet_regiis.exe will be found in one of the following locations:
+C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727
+C:\WINDOWS\Microsoft.NET\Framework32\v2.0.50727
+
+[ 64-bit Systems ]
+The aspnet_regiis.exe will be found in one of the following locations:
+C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727
+C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727
+
+
+So Let's Get Started!
+
+Encrypt your App.config
+
+Rename the App.config in your project's directory to Web.config 
+(This is just a temporary name change, we'll change it back to it's original name shortly)
+Open up a command prompt (Windows Key + R)
+Type the following command:
+
+%windir%\Microsoft.NET\Framework<your framework number if applicable>\v2.0.50727\aspnet_regiis -pef "connectionStrings" <type your full path to directory containing your web.config file>
+
+For an example, the following command is what I had to type:
+%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_regiis -pef "connectionStrings" "\\myserver\users\evlsnoopy\visual studio 2010\Projects\Education_Linq\Education_Linq"
+or...
+%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_regiis -pef "appSettings" "C:\Projects\Adare.VWFSCollections\Adare.VWFSCollections.AccessApp"
+
+
+After aspnet_regiis.exe is done, it will say Succeeded!
+Now go back to your Web.config file and rename it back to App.config
+Open your App.config file and you will see it has been Triple DES Encrypted
+
+
+
+Decrypt your App.config
+
+Do steps 1 & 2 from the Encrypt your App.config section
+Type the exact same command you typed to encrypt your Web.config, but change the -pef flag to -pdf
+Once again, after aspnet_regiis.exe is done, it will say Succeeded!
+Now go back to your Web.config file and rename it back to App.config
+Open your App.config file and you will see it has been decrypted
+
+//===============================			or Sams way			===============================
+
+
+private static void EncryptWebConfigSections()
+{
+	Configuration config = WebConfigurationManager.OpenWebConfiguration("/");
+	var sections = new List<ConfigurationSection>() { config.AppSettings, config.ConnectionStrings };
+
+	foreach (ConfigurationSection section in sections)
+	{
+		EncryptSection(section);
+	}
+
+	config.Save(ConfigurationSaveMode.Full);
+}
+
+private static void EncryptSection(ConfigurationSection section)
+{
+	if (section == null) return;
+	if (section.SectionInformation.IsProtected || section.ElementInformation.IsLocked) return;
+	section.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
+	section.SectionInformation.ForceSave = true;
+}

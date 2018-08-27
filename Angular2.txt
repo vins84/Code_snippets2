@@ -1,0 +1,31 @@
+https://angular.io/guide/cheatsheet
+https://angular.io/api
+
+https://www.w3schools.com/jsref/dom_obj_event.asp
+
+https://www.typescriptlang.org/docs/handbook/basic-types.html								-			TypeScript Documentation (DataType)
+
+
+
+
+
+//=======================			Random Example				=========================================
+https://codepen.io/andy31415/pen/ZWNprm
+
+http://jasonwatmore.com/post/2017/01/24/angular-2-custom-modal-window-dialog-box			-			Modal PopUps
+https://github.com/ng2-ui/popup																-			PopUps
+https://coryrylan.com/blog/introduction-to-angular-routing									-			Basic Routing example
+
+
+
+//=======================			SMS Solution Angular2			=====================================
+
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'London')">Stream</button>
+  <button class="tablinks" onclick="openCity(event, 'Paris')">Messages</button>
+  <button class="tablinks" (click)="dp2.toggleCalendar()">Charts</button>
+  <input type="button" [routerLink]="['/sms/customer/campaign-table.component.html']" (click)="dp2.toggleCalendar()" routerLinkActive="active" name="" value="SMS Dashboard">
+</div>
+
+
+
