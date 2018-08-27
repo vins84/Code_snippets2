@@ -1,8 +1,5 @@
 BitBucket
 Account: Miroslaw Kaczor
-User: miroslaw_kaczor
-Email: miroslawkaczor@hotmail.co.uk	
-Password: Miroslaw_84
 
 
 https://miroslaw_kaczor@bitbucket.org/miroslaw_kaczor/
@@ -10,8 +7,6 @@ https://miroslaw_kaczor@bitbucket.org/miroslaw_kaczor/
 
 GIT
 User: vins84
-Password: Miroslaw_84
-https://github.com/vins84/YW_Technical.git
 
 
 
