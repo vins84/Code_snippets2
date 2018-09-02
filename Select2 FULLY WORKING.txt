@@ -1,0 +1,191 @@
+//------------------			Select2 working example		-		might need reworking but it works		----------------
+
+<!-- Layout -->
+
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+<link href="~/Content/css/select2.css" rel="stylesheet">
+<script src="~/Scripts/select2.js"></script>
+	
+
+
+<!-- Controller -->
+public JsonResult FetchItems(string term, string query)
+{
+	List<Aircraft> aircraftList = new List<Aircraft>(); //fetch list of items from db table
+	if (term == null)
+	{
+		aircraftList = db.Aircraft.ToList();
+	}
+	else
+	{
+		aircraftList = db.Aircraft.Where(c => c.Model.Contains(term) || c.Manufacturer.Contains(term)).ToList();
+	}
+
+	List<Aircraft> aircraftList2 = term == null ? aircraftList = db.Aircraft.ToList() : db.Aircraft.Where(c => c.Model.Contains(term) || c.Manufacturer.Contains(term)).ToList();
+
+	aircraftList.Sort(delegate (Aircraft c1, Aircraft c2) { return c1.Model.CompareTo(c2.Model); }); //sort the results list alphabetically by ItemName
+	var serialisedJson = from result in aircraftList //serialise the results list into json
+						 select new
+						 {
+							 manufacturer = result.Manufacturer, //each json object will have 
+							 model = result.Model               //these two variables [name, id]
+						 };
+	return Json(serialisedJson, JsonRequestBehavior.AllowGet); //return the serialised results list
+}
+
+public JsonResult FetchContracts(string term)
+{
+	var contracts = new List<Aircraft>();
+	if (term == null)
+	{
+		contracts = db.Aircraft.ToList();
+	}
+	else
+	{
+		contracts = db.Aircraft.Where(w => w.Model.Contains(term)).ToList();
+	}
+
+	var json = contracts.Select(x => new
+	{
+		name = x.Model,
+		id = x.Manufacturer
+	});
+	return Json(json, JsonRequestBehavior.AllowGet);
+}
+
+
+
+<!-- Html -->
+
+<div class="form-group">
+    @Html.LabelFor(m => m.AircraftModel, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.HiddenFor(m => m.AircraftModel, new { id = "aircraft" })
+
+        <select class="form-control" id="ddlName2" multiple="multiple"></select>
+		<select class="form-control" id="ddlName3" multiple="multiple"></select>
+</div>
+    <div class="col-md-10">
+        <!-- Select2 official example -->
+        <select class="form-control" id="basic-example-select"></select>
+    </div>
+</div>
+
+
+
+<!-- Script -->
+
+<script>
+    $('#ddlName2').select2({
+        allowClear: true,
+        placeholder: "Search for Aircraft 2",
+        ajax: {
+            url: "@Url.Action("FetchItems", "Aircraft")",
+            //type: "GET",
+            dataType: 'json',
+            width: 'style',
+            delay: 250,
+            data: function (param) {
+                return param;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            text: item.manufacturer + " - " + item.model,
+                            id: item.model
+                        };
+                    })
+                };
+            },
+            cache: true
+        }
+    }) .on("change",
+        function (e) {
+            debugger;
+            var selectMulti = $.map($("#ddlName option:selected"),
+                function (el, i) {
+                    //return $(el).text();
+                    return $(el).val();
+                });
+        });
+
+    $('#ddlName3').select2({
+        allowClear: true,
+        placeholder: "Search for Aircraft 3",
+        //minimumInputLength: 0,
+        ajax: {
+            url: "@Url.Action("FetchContracts", "Aircraft")",
+            dataType: 'json',
+            width: 'style',
+            delay: 250,
+            data: function (param) {
+                return param;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            text: item.name + " - " + item.id,
+                            id: item.id
+                        };
+                    })
+                };
+            },
+            cache: true
+        }
+    }).on("change",
+        function (e) {
+            debugger;
+            var selectMulti = $.map($("#ddlName option:selected"),
+                function (el, i) {
+                    //return $(el).text();
+                    return $(el).val();
+                });
+        });
+
+
+    $('#basic-example-select').select2({
+        allowClear: true,
+        placeholder: "Choose a manufacturer",
+        ajax: {
+            url: "http://sh-example-simple.herokuapp.com",
+            dataType: "json",
+            width: 'style',
+            delay: 250,
+            data: function (params) {
+                debugger;
+                return {
+                    q: params.term,
+                    page: params.page,
+                    per_page: 10
+                };
+            },
+            processResults: function (data, page) {
+                debugger;
+                return {
+                    // Select2 requires an id, so we need to map the results and add an ID
+                    // You could instead include an id in the tsv you add to soulheart ;)
+                    results: data.matches.map(function (item) {
+                        return {
+                            id: item.text,
+                            text: item.text
+                        };
+                    }),
+                    pagination: {
+                        // If there are 10 matches, there's at least another page
+                        more: data.matches.length === 10
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+</script>
+
+
+
+
