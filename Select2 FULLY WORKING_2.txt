@@ -1,0 +1,130 @@
+//------------------			Select2 working example		-		might need reworking but it works		----------------
+
+// 	Model
+public class AircraftViewModel
+{
+
+	public int Id { get; set; }
+	public string Manufacturer { get; set; }
+	public string Model { get; set; }
+	public string ProdYear { get; set; }
+	public Country Country { get; set; }
+
+	public List<Aircraft> ListOfAricraft { get; set; }
+
+	//Select2
+	[Display(Name = "Aircrafts")]
+	public ICollection<Aircraft> Aircrafts { get; set; }
+
+	[Required]
+	[Display(Name = "Aircraft")]
+	public string Aircraft { get; set; }
+}
+
+	
+//		Controller
+
+[HttpGet]
+public ActionResult Index()
+{
+	var aircraftList = db.Aircraft.Select(s => s).ToList();
+	AircraftViewModel viewModel = new AircraftViewModel
+	{
+		Aircrafts = aircraftList,
+		ListOfAricraft = aircraftList,
+	};
+	return View(viewModel);
+}
+
+[HttpPost]
+public ActionResult Testing(int aircraftId)
+{
+	var tst = aircraftId;
+
+	return View(aircraftId);
+}
+
+[HttpPost]
+public ActionResult Testing2(string aircraftData)
+{
+	var tst = aircraftData;
+
+	return View(aircraftData);
+}
+		
+		
+//		View
+@using (Html.BeginForm("Testing", "Aircraft", FormMethod.Post, new { @class = "select", id = "aircraftId" }))
+{
+	@Html.AntiForgeryToken()
+<h2>Testing</h2>
+	<hr />
+	@Html.ValidationSummary("", new { @class = "text-danger" })
+	<div class="form-group">
+		@Html.LabelFor(m => m.Aircraft, new { @class = "col-md-2 control-label" })
+		<div class="col-md-10">
+			<select class="col-md-10" id="select" name="aircraftId">
+				@foreach (var item in Model.Aircrafts)
+				{
+				<option value="@item.Id" title="@item.Manufacturer">@item.Model</option>
+				}
+			</select>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-2 col-md-10">
+				<input type="submit" class="btn btn-default" value="Testing" />
+			</div>
+		</div>
+	</div>
+}
+
+
+
+//		Script
+//this selects the default value but it needs to come from the model
+        $("#select").val("5").trigger("change"); 
+
+$("#select").select2({
+	matcher: matchCustom
+        }).on('select2:select', function (e) {
+            var data = e.params.data;
+            console.log(data);
+            debugger;
+
+            $.ajax({
+                url: '@Url.Action("Testing2", "Aircraft")',
+                type: "POST",
+                data: { aircraftData: data.id },
+                success: function (data) {
+                    // your code in success
+                    alert("success");
+                }
+            });
+    });
+
+function matchCustom(params, data) {
+	// If there are no search terms, return all of the data
+	if ($.trim(params.term) === '') {
+		return data;
+	}
+
+	// Do not display the item if there is no 'text' property
+	if (typeof data.text === 'undefined') {
+		return null;
+	}
+
+	// `params.term` should be the term that is used for searching
+	// `data.text` is the text that is displayed for the data object
+	if (data.text.indexOf(params.term) > -1) {
+		var modifiedData = $.extend({}, data, true);
+		modifiedData.text += ' (matched)';
+
+		// You can return modified objects from here
+		// This includes matching the `children` how you want in nested data sets
+		return modifiedData;
+	}
+
+	// Return `null` if the term should not be displayed
+	return null;
+}
