@@ -1,0 +1,17 @@
+see also links in  MVC Links and Guides
+
+
+//================			Input Stream			==============
+https://stackoverflow.com/questions/40250814/read-a-line-of-a-file-using-an-inputstream		-		Good	
+https://stackoverflow.com/questions/45445707/reading-line-by-line-an-inputstream			-		Good
+
+
+
+https://stackoverflow.com/questions/4418319/c-sharp-how-to-skip-number-of-lines-while-reading-text-file-using-stream-reader
+
+https://stackoverflow.com/questions/18220241/how-to-ignore-the-first-line-in-a-csv-file-when-you-read-the-csv-file-in-c-sharp
+https://stackoverflow.com/questions/23989677/file-readalllines-or-stream-reader
+
+
+https://stackoverflow.com/questions/33749893/reading-text-file-line-by-line-using-streamreader-in-c-sharp		-		Cooul be good	
+

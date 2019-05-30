@@ -72,6 +72,15 @@ Sometimes you may need to add --force to the commit
 git push origin master --force
 
 
+//============  Addin files to existing repo	=========
 
+1. 	Open Git Bash.
 
+2.	Change the current working directory to your local project.
+cd "/C/Users/Miroslaw/Desktop/FDM/OOD/My notes/New folder Notes/snippets_and_learning_materials"
 
+3.	Initialize the local directory as a Git repository.
+git init
+
+4.	Push the changes in your local repository to GitHub.
+git push origin master

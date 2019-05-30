@@ -24,6 +24,15 @@ jQuery
 	
 	
 	
+//================			Syntax Highlighter - colour theme		=================
+https://marketplace.visualstudio.com/items?itemName=StanislavKuzmichArtStea1th.EnhancedSyntaxHighlighting		-	Not vivid enough needs more brightness
+https://docs.microsoft.com/en-us/visualstudio/ide/quickstart-personalize-the-ide?view=vs-2019
+
+https://marketplace.visualstudio.com/items?itemName=tinaciousdesign.theme-tinaciousdesign
+https://medium.com/@frewin.christopher/how-to-add-awesome-monokai-colors-for-beautiful-c-development-in-visual-studio-2017-a403a2200c25
+https://marketplace.visualstudio.com/items?itemName=taniarascia.new-moon-vscode
+
+	
 
 AutoFaq
 

@@ -482,3 +482,22 @@ public static class BytesEncoder
     }
 }
 
+
+
+//==================		IEqualityComparer in C#			===========================
+https://stackoverflow.com/questions/16667699/implementing-iequalitycomparert-on-an-object-with-two-properties-in-c-sharp?lq=1  			-		on the object GOOD if know what your doing 
+https://stackoverflow.com/questions/6694508/how-to-use-the-iequalitycomparer			-		Good
+https://dotnetcodr.com/2015/05/06/implementing-the-iequalitycomparer-of-t-interface-for-object-equality-with-c-net/
+http://www.blackwasp.co.uk/IEqualityComparer.aspx
+
+
+//================			Input Stream			==============
+https://stackoverflow.com/questions/40250814/read-a-line-of-a-file-using-an-inputstream		-		Good	
+https://stackoverflow.com/questions/45445707/reading-line-by-line-an-inputstream			-		Good
+
+https://stackoverflow.com/questions/4418319/c-sharp-how-to-skip-number-of-lines-while-reading-text-file-using-stream-reader
+https://stackoverflow.com/questions/18220241/how-to-ignore-the-first-line-in-a-csv-file-when-you-read-the-csv-file-in-c-sharp
+https://stackoverflow.com/questions/23989677/file-readalllines-or-stream-reader
+
+https://stackoverflow.com/questions/33749893/reading-text-file-line-by-line-using-streamreader-in-c-sharp		-		Cooul be good	
+

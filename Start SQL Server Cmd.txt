@@ -66,3 +66,14 @@ Copy the Instance pipe name that starts with np:\...
 	 			 np:\\.\pipe\LOCALDB#A1557D9E\tsql\query
 							
 							  
+
+							  
+							  
+							  (localDb)\MSSQLLocalDB\MyFirst_WebAPI_Angular
+							  
+							  
+							  
+							  Add-Migration MyMigration -context DatabaseContext
+							  Update-Database -context DatabaseContext
+							  
+							  
